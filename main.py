@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from solver import Solver
+from model import FullyConnectedNet, TwoLayerNet
 
 # read data
 data = pd.read_csv('titanic.csv')
@@ -12,6 +14,7 @@ print(data.shape)
 x_train, y_train = data[: 800, 1: ], data[: 800, 0] 
 x_test, y_test = data[800: , 1: ], data[800: , 0] 
 
+model = FullyConnectedNet()
 solver = Solver(model, data,
                 update_rule='sgd',
                 optim_config={'learning_rate': 1e-3,},

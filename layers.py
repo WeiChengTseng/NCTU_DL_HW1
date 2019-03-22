@@ -330,6 +330,284 @@ def batchnorm_backward_alt(dout, cache):
 
     return dx, dgamma, dbeta
 
+
+def dropout_forward(x, dropout_param):
+    """
+    Performs the forward pass for (inverted) dropout.
+    Inputs:
+    - x: Input data, of any shape
+    - dropout_param: A dictionary with the following keys:
+      - p: Dropout parameter. We drop each neuron output with probability p.
+      - mode: 'test' or 'train'. If the mode is train, then perform dropout;
+        if the mode is test, then just return the input.
+      - seed: Seed for the random number generator. Passing seed makes this
+        function deterministic, which is needed for gradient checking but not
+        in real networks.
+    Outputs:
+    - out: Array of the same shape as x.
+    - cache: tuple (dropout_param, mask). In training mode, mask is the dropout
+      mask that was used to multiply the input; in test mode, mask is None.
+    """
+    p, mode = dropout_param['p'], dropout_param['mode']
+    if 'seed' in dropout_param:
+        np.random.seed(dropout_param['seed'])
+
+    mask = None
+    out = None
+
+    if mode == 'train':
+        #######################################################################
+        # TODO: Implement training phase forward pass for inverted dropout.   #
+        # Store the dropout mask in the mask variable.                        #
+        #######################################################################
+        mask = np.random.rand(*x.shape) < p
+        out = x * mask
+        pass
+        #######################################################################
+        #                           END OF YOUR CODE                          #
+        #######################################################################
+    elif mode == 'test':
+        #######################################################################
+        # TODO: Implement the test phase forward pass for inverted dropout.   #
+        #######################################################################
+        out = x
+        pass
+        #######################################################################
+        #                            END OF YOUR CODE                         #
+        #######################################################################
+
+    cache = (dropout_param, mask)
+    out = out.astype(x.dtype, copy=False)
+
+    return out, cache
+
+
+def dropout_backward(dout, cache):
+    """
+    Perform the backward pass for (inverted) dropout.
+    Inputs:
+    - dout: Upstream derivatives, of any shape
+    - cache: (dropout_param, mask) from dropout_forward.
+    """
+    dropout_param, mask = cache
+    mode = dropout_param['mode']
+
+    dx = None
+    if mode == 'train':
+        #######################################################################
+        # TODO: Implement training phase backward pass for inverted dropout   #
+        #######################################################################
+        dx = dout
+        dx[cache[1] == False] = 0
+        pass
+        #######################################################################
+        #                          END OF YOUR CODE                           #
+        #######################################################################
+    elif mode == 'test':
+        dx = dout
+    return dx
+
+
+def conv_forward_naive(x, w, b, conv_param):
+    """
+    A naive implementation of the forward pass for a convolutional layer.
+    The input consists of N data points, each with C channels, height H and
+    width W. We convolve each input with F different filters, where each filter
+    spans all C channels and has height HH and width HH.
+    Input:
+    - x: Input data of shape (N, C, H, W)
+    - w: Filter weights of shape (F, C, HH, WW)
+    - b: Biases, of shape (F,)
+    - conv_param: A dictionary with the following keys:
+      - 'stride': The number of pixels between adjacent receptive fields in the
+        horizontal and vertical directions.
+      - 'pad': The number of pixels that will be used to zero-pad the input.
+    Returns a tuple of:
+    - out: Output data, of shape (N, F, H', W') where H' and W' are given by
+      H' = 1 + (H + 2 * pad - HH) / stride
+      W' = 1 + (W + 2 * pad - WW) / stride
+    - cache: (x, w, b, conv_param)
+    """
+    out = None
+    ###########################################################################
+    # TODO: Implement the convolutional forward pass.                         #
+    # Hint: you can use the function np.pad for padding.                      #
+    ###########################################################################
+    N, C, H, W = x.shape
+    F, C, HH, WW = w.shape
+    stride, pad = conv_param['stride'], conv_param['pad']
+
+    new_H = int(1 + (H + 2 * pad - HH) / stride)
+    new_W = int(1 + (W + 2 * pad - WW) / stride)
+    out = np.zeros((N, F, new_H, new_W))
+
+    x_pad = np.zeros((N, C, H + 2 * pad, W + 2 * pad))
+    x_pad[:, :, pad:H + pad, pad:W + pad] = x
+
+    for i in range(N):
+        for j in range(F):
+            for k in range(new_H):
+                for n in range(new_W):
+                    for m in range(C):
+                        out[i][j][k][n] += np.sum(
+                            x_pad[i, m, k * stride:k * stride + HH, n *
+                                  stride:n * stride + WW] * w[j, m, :, :])
+                    out[i][j][k][n] += b[j]
+
+    pass
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+    cache = (x, w, b, conv_param)
+    return out, cache
+
+
+def conv_backward_naive(dout, cache):
+    """
+    A naive implementation of the backward pass for a convolutional layer.
+    Inputs:
+    - dout: Upstream derivatives.
+    - cache: A tuple of (x, w, b, conv_param) as in conv_forward_naive
+    Returns a tuple of:
+    - dx: Gradient with respect to x
+    - dw: Gradient with respect to w
+    - db: Gradient with respect to b
+    """
+    dx, dw, db = None, None, None
+    ###########################################################################
+    # TODO: Implement the convolutional backward pass.                        #
+    ###########################################################################
+
+    x = cache[0]
+    w = cache[1]
+    HH, WW = w.shape[2], w.shape[3]
+    N, F = dout.shape[0], dout.shape[1]
+    C, H, W = cache[0].shape[1], cache[0].shape[2], cache[0].shape[3]
+    stride, pad = cache[3]['stride'], cache[3]['pad']
+    dout_scores = np.zeros((N, F))
+    dx = np.zeros(cache[0].shape)
+    dw = np.zeros(cache[1].shape)
+    db = np.zeros((F, ))
+    x_pad = np.zeros((N, C, H + 2 * pad, W + 2 * pad))
+    x_pad[:, :, pad:H + pad, pad:W + pad] = cache[0]
+    H_pad, W_pad = x_pad[0][0].shape
+    dx_pad = np.zeros(x_pad.shape)
+    H_new, W_new = dout.shape[2], dout.shape[3]
+
+    for i in range(N):
+        for j in range(C):
+            for k in range(H_new):
+                for n in range(W_new):
+                    for m in range(F):
+                        dx_pad[i, j, k * stride:k * stride +
+                               HH, n * stride:n * stride +
+                               WW] += dout[i][m][k][n] * w[m][j]
+    dx = dx_pad[:, :, pad:pad + H, pad:pad + W]
+
+    for i in range(F):
+        for j in range(C):
+            for k in range(HH):
+                for n in range(WW):
+                    for m in range(N):
+                        dw[i][j][k][n] += np.sum(
+                            x_pad[m, j, k:k + H_new, n:n + W_new] * dout[m][i])
+
+    for i in range(N):
+        for j in range(F):
+            dout_scores[i][j] = np.sum(dout[i][j])
+    db = np.sum(dout_scores, axis=0)
+    pass
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+    return dx, dw, db
+
+
+def max_pool_forward_naive(x, pool_param):
+    """
+    A naive implementation of the forward pass for a max pooling layer.
+    Inputs:
+    - x: Input data, of shape (N, C, H, W)
+    - pool_param: dictionary with the following keys:
+      - 'pool_height': The height of each pooling region
+      - 'pool_width': The width of each pooling region
+      - 'stride': The distance between adjacent pooling regions
+    Returns a tuple of:
+    - out: Output data
+    - cache: (x, pool_param)
+    """
+    out = None
+    ###########################################################################
+    # TODO: Implement the max pooling forward pass                            #
+    ###########################################################################
+
+    N, C, H, W = x.shape
+    pool_height, pool_width = pool_param['pool_height'], pool_param[
+        'pool_width']
+    stride = pool_param['stride']
+    H_out, W_out = int(1 + (H - pool_height) / stride), int(
+        1 + (W - pool_width) / stride)
+    out = np.zeros((N, C, H_out, W_out))
+
+    for i in range(N):
+        for j in range(C):
+            for k in range(H_out):
+                for n in range(W_out):
+                    out[i][j][k][n] = np.max(
+                        x[i, j, k * stride:k * stride +
+                          pool_height, n * stride:n * stride + pool_width])
+
+    pass
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+    cache = (x, pool_param)
+    return out, cache
+
+
+def max_pool_backward_naive(dout, cache):
+    """
+    A naive implementation of the backward pass for a max pooling layer.
+    Inputs:
+    - dout: Upstream derivatives
+    - cache: A tuple of (x, pool_param) as in the forward pass.
+    Returns:
+    - dx: Gradient with respect to x
+    """
+    dx = None
+    ###########################################################################
+    # TODO: Implement the max pooling backward pass                           #
+    ###########################################################################
+
+    x = cache[0]
+    N, C, H, W = x.shape
+    pool_height, pool_width = cache[1]['pool_height'], cache[1]['pool_width']
+    stride = cache[1]['stride']
+    H_dout, H_dout = int(1 + (H - pool_height) / stride), int(
+        1 + (W - pool_width) / stride)
+    dx = np.zeros(x.shape)
+
+    for i in range(N):
+        for j in range(C):
+            for k in range(H_dout):
+                for n in range(H_dout):
+                    matrix = x[i, j, k * stride:k * stride +
+                               pool_height, n * stride:n * stride + pool_width]
+                    pos_max_per_row = np.argsort(
+                        matrix)[np.arange(pool_height), pool_width - 1]
+                    max_per_row = matrix[np.arange(pool_height
+                                                   ), pos_max_per_row]
+                    pos_max_col = np.argsort(max_per_row)[pool_height - 1]
+                    pos_max_row = pos_max_per_row[pos_max_col]
+                    dx[i][j][k * pool_height + pos_max_col][
+                        n * pool_width + pos_max_row] = dout[i][j][k][n]
+    pass
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+    return dx
+
+
 def spatial_batchnorm_forward(x, gamma, beta, bn_param):
     """
     Computes the forward pass for spatial batch normalization.
