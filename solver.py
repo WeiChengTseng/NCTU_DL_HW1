@@ -117,7 +117,8 @@ class Solver(object):
 
         self.checkpoint_name = kwargs.pop('checkpoint_name', None)
         self.print_every = kwargs.pop('print_every', 10)
-        self.verbose = kwargs.pop('verbose', True)
+    	self.verbose = kwargs.pop('verbose', True)
+        self.name = kwargs.pop('name', '')
 
         # Throw an error if there are extra keyword arguments
         if len(kwargs) > 0:

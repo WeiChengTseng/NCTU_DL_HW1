@@ -144,10 +144,7 @@ class FullyConnectedNet(object):
         # self.bn_params[1] to the forward pass for the second batch normalization #
         # layer, etc.                                                              #
         ############################################################################
-        cache = {}
-        cache_relu = {}
-        cache_nor = {}
-        cache_dropout = {}
+        cache, cache_relu, cache_nor, cache_dropout = {}, {}, {}, {}
         L = self.num_layers
 
         out, cache[1] = affine_forward(X, self.params['W1'], self.params['b1'])
