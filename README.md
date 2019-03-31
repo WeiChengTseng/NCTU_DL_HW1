@@ -8,11 +8,18 @@
 
 ### Problem 1
 ![](/result/prob1.png)
+
 ### Problem 2
 ![](/result/prob2.png)
+
 ### Problem 3
 ![](/result/prob3.png)
+
 ### Problem 4
 ![](/result/prob4.png)
+
 ### Problem 5
 ![](/result/prob5.png)
+
+### Problem 6
+![](/result/prob6.png)
