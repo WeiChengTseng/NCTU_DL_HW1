@@ -1,12 +1,13 @@
 import pandas as pd
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 from solver import Solver
-from model import FullyConnectedNet, TwoLayerNet
+from model import FullyConnectedNet
 
 plt.style.use('ggplot')  
 
-def plot(solver):
+def plot(solver, filename):
     plt.subplot(3, 1, 1)
     plt.title('Training loss')
     plt.xlabel('Iteration')
@@ -33,7 +34,7 @@ def plot(solver):
         plt.subplot(3, 1, i)
         # plt.legend(loc='upper center', ncol=4)
     plt.gcf().set_size_inches(15, 20)
-    plt.savefig('./result/2.png', dpi=300)
+    plt.savefig(os.path.join('./result/', filename), dpi=300)
     # plt.show()
     return
 
@@ -51,21 +52,21 @@ data = {
     'y_val': y_test.astype(int),
 }
 
-model = FullyConnectedNet([3],
+model_2 = FullyConnectedNet([3, 3],
                           input_dim=6,
                           num_classes=2,
                           weight_scale=5e-2,
-                          reg=1e-2)
+                          reg=1e-3)
 solver_2 = Solver(
-    model,
+    model_2,
     data,
     update_rule='sgd',
     optim_config={
-        'learning_rate': 1e-3,
+        'learning_rate': 0.01,
     },
     lr_decay=0.95,
-    num_epochs=50,
+    num_epochs=60,
     batch_size=40,
     print_every=100)
-solver.train()
-plot(solver)
+solver_2.train()
+plot(solver_2, 'prob2.png')
