@@ -7,7 +7,7 @@ from model import FullyConnectedNet
 
 np.random.seed(0)
 plt.style.use('ggplot')
-OPTIMIZER = 'sgd'
+OPTIMIZER = 'adam'
 
 
 def plot(solver, filename):
