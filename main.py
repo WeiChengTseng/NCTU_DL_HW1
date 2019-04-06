@@ -7,7 +7,7 @@ from model import FullyConnectedNet
 
 np.random.seed(0)
 plt.style.use('ggplot')
-OPTIMIZER = 'adam'
+OPTIMIZER = 'sgd'
 NUM_EPOCH = 100
 
 
@@ -41,6 +41,7 @@ def plot(solver, filename):
 
     return
 
+
 def plot_solvers(solvers, filename):
     plt.subplot(3, 1, 1)
     plt.title('Training loss')
@@ -61,7 +62,7 @@ def plot_solvers(solvers, filename):
     plt.subplot(3, 1, 2)
     for s in solvers:
         plt.plot(s.train_acc_history, '-o', markersize=4, label=s.name)
-        
+
     plt.subplot(3, 1, 3)
     for s in solvers:
         plt.plot(s.val_acc_history, '-o', markersize=4, label=s.name)
@@ -78,6 +79,49 @@ def plot_solvers(solvers, filename):
 
 
 def problem1():
+    data_df = pd.read_csv('titanic.csv')
+    data = data_df.as_matrix()
+    train_acc, val_acc = [], []
+    for i in range(1, 9, 1):
+
+        x_train, y_train = data[:i*100, 1:], data[:i*100, 0]
+        x_test, y_test = data[i*100:, 1:], data[i*100:, 0]
+        data = {
+            'X_train': x_train,
+            'y_train': y_train.astype(int),
+            'X_val': x_test,
+            'y_val': y_test.astype(int),
+        }
+
+        model = FullyConnectedNet([3, 3],
+                                input_dim=6,
+                                num_classes=2,
+                                weight_scale=5e-2,
+                                reg=1e-4)
+        solver = Solver(
+            model,
+            data,
+            update_rule=OPTIMIZER,
+            optim_config={
+                'learning_rate': 0.01,
+            },
+            lr_decay=0.95,
+            num_epochs=NUM_EPOCH,
+            batch_size=40,
+            print_every=100,
+            verbose=False)
+        solver.train()
+        train_acc.append(solver.train_acc_history[-1])
+        val_acc.append(solver.val_acc_history[-1])
+
+    plt.plot(range(1, 9, 1), train_acc, '-o', label='training accuracy')
+    plt.plot(range(1, 9, 1), val_acc, '-o', label='validation accuracy')
+    plt.title('Learning Curve')
+    plt.xlabel('Accuracy')
+    plt.ylabel('Ratio of Dataset')
+    plt.legend()
+    plt.savefig(os.path.join('./result/', 'prob1.png'), dpi=250)
+
     return
 
 
@@ -172,10 +216,10 @@ def problem3():
     }
 
     model_3_nor = FullyConnectedNet([3, 3],
-                                input_dim=6,
-                                num_classes=2,
-                                weight_scale=5e-2,
-                                reg=1e-4)
+                                    input_dim=6,
+                                    num_classes=2,
+                                    weight_scale=5e-2,
+                                    reg=1e-4)
     solver_3_nor = Solver(
         model_3_nor,
         data,
@@ -234,7 +278,6 @@ def problem5():
     solver_5.train()
     plot(solver_5, 'prob5.png')
 
-
     data_df['Pclass'] = pd.Categorical(data_df['Pclass'])
     df_dummies = pd.get_dummies(data_df['Pclass'], prefix='category')
     data_df = pd.concat([data_df, df_dummies], axis=1)
@@ -253,10 +296,10 @@ def problem5():
     }
 
     model_5_cat = FullyConnectedNet([3, 3],
-                                input_dim=8,
-                                num_classes=2,
-                                weight_scale=5e-2,
-                                reg=1e-4)
+                                    input_dim=8,
+                                    num_classes=2,
+                                    weight_scale=5e-2,
+                                    reg=1e-4)
     solver_5_cat = Solver(
         model_5_cat,
         data,
@@ -281,7 +324,8 @@ def problem6():
 
 
 if __name__ == '__main__':
-    problem2()
-    problem3()
-    problem5()
+    problem1()
+    # problem2()
+    # problem3()
+    # problem5()
     pass
