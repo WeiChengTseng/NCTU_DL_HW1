@@ -7,7 +7,7 @@ from model import FullyConnectedNet
 
 np.random.seed(0)
 plt.style.use('ggplot')
-OPTIMIZER = 'sgd'
+OPTIMIZER = 'adam'
 NUM_EPOCH = 100
 
 
@@ -83,10 +83,10 @@ def problem1():
     data = data_df.as_matrix()
     train_acc, val_acc = [], []
     for i in range(1, 9, 1):
-
-        x_train, y_train = data[:i*100, 1:], data[:i*100, 0]
-        x_test, y_test = data[i*100:, 1:], data[i*100:, 0]
-        data = {
+        print(i)
+        x_train, y_train = data[:int(i * 100), 1:], data[:int(i * 100), 0]
+        x_test, y_test = data[800:, 1:], data[800:, 0]
+        data_dict = {
             'X_train': x_train,
             'y_train': y_train.astype(int),
             'X_val': x_test,
@@ -94,20 +94,20 @@ def problem1():
         }
 
         model = FullyConnectedNet([3, 3],
-                                input_dim=6,
-                                num_classes=2,
-                                weight_scale=5e-2,
-                                reg=1e-4)
+                                  input_dim=6,
+                                  num_classes=2,
+                                  weight_scale=5e-2,
+                                  reg=1e-4)
         solver = Solver(
             model,
-            data,
+            data_dict,
             update_rule=OPTIMIZER,
             optim_config={
                 'learning_rate': 0.01,
             },
             lr_decay=0.95,
             num_epochs=NUM_EPOCH,
-            batch_size=40,
+            batch_size=20,
             print_every=100,
             verbose=False)
         solver.train()
