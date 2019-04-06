@@ -8,6 +8,7 @@ from model import FullyConnectedNet
 np.random.seed(0)
 plt.style.use('ggplot')
 OPTIMIZER = 'adam'
+NUM_EPOCH = 100
 
 
 def plot(solver, filename):
@@ -106,9 +107,10 @@ def problem2():
             'learning_rate': 0.01,
         },
         lr_decay=0.95,
-        num_epochs=60,
+        num_epochs=NUM_EPOCH,
         batch_size=40,
-        print_every=100)
+        print_every=100,
+        verbose=False)
     solver_2.train()
     plot(solver_2, 'prob2.png')
     return
@@ -120,13 +122,6 @@ def problem3():
 
     x_train, y_train = data[:800, 1:], data[:800, 0]
     x_test, y_test = data[800:, 1:], data[800:, 0]
-
-    fare_mean, fare_std = np.mean(x_train[:, -1]), np.std(x_train[:, -1])
-    age_mean, age_std = np.mean(x_train[:, 2]), np.std(x_train[:, 2])
-    x_train[:, -1] = (x_train[:, -1] - fare_mean) / fare_std
-    x_test[:, -1] = (x_test[:, -1] - fare_mean) / fare_std
-    x_train[:, 2] = (x_train[:, 2] - age_mean) / age_std
-    x_test[:, 2] = (x_test[:, 2] - age_mean) / age_std
 
     data = {
         'X_train': x_train,
@@ -148,11 +143,55 @@ def problem3():
             'learning_rate': 0.01,
         },
         lr_decay=0.95,
-        num_epochs=60,
+        num_epochs=NUM_EPOCH,
         batch_size=40,
-        print_every=100)
+        print_every=100,
+        name='original',
+        verbose=False)
     solver_3.train()
     plot(solver_3, 'prob3.png')
+
+    # -------------------------------------------------------------------------
+
+    data = data_df.as_matrix()
+    x_train, y_train = data[:800, 1:], data[:800, 0]
+    x_test, y_test = data[800:, 1:], data[800:, 0]
+
+    fare_mean, fare_std = np.mean(x_train[:, -1]), np.std(x_train[:, -1])
+    age_mean, age_std = np.mean(x_train[:, 2]), np.std(x_train[:, 2])
+    x_train[:, -1] = (x_train[:, -1] - fare_mean) / fare_std
+    x_test[:, -1] = (x_test[:, -1] - fare_mean) / fare_std
+    x_train[:, 2] = (x_train[:, 2] - age_mean) / age_std
+    x_test[:, 2] = (x_test[:, 2] - age_mean) / age_std
+
+    data = {
+        'X_train': x_train,
+        'y_train': y_train.astype(int),
+        'X_val': x_test,
+        'y_val': y_test.astype(int),
+    }
+
+    model_3_nor = FullyConnectedNet([3, 3],
+                                input_dim=6,
+                                num_classes=2,
+                                weight_scale=5e-2,
+                                reg=1e-4)
+    solver_3_nor = Solver(
+        model_3_nor,
+        data,
+        update_rule=OPTIMIZER,
+        optim_config={
+            'learning_rate': 0.01,
+        },
+        lr_decay=0.95,
+        num_epochs=NUM_EPOCH,
+        batch_size=40,
+        print_every=100,
+        name='normalized',
+        verbose=False)
+    solver_3_nor.train()
+    plot(solver_3_nor, 'prob3_nor.png')
+    plot_solvers([solver_3, solver_3_nor], 'prob3_compared.png')
     return
 
 
@@ -187,7 +226,7 @@ def problem5():
             'learning_rate': 0.01,
         },
         lr_decay=0.98,
-        num_epochs=80,
+        num_epochs=NUM_EPOCH,
         batch_size=40,
         print_every=100,
         name='original',
@@ -226,7 +265,7 @@ def problem5():
             'learning_rate': 0.01,
         },
         lr_decay=0.98,
-        num_epochs=80,
+        num_epochs=NUM_EPOCH,
         batch_size=40,
         print_every=100,
         name='categorical',
@@ -242,7 +281,7 @@ def problem6():
 
 
 if __name__ == '__main__':
-    # problem2()
-    # problem3()
+    problem2()
+    problem3()
     problem5()
     pass

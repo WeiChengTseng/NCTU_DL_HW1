@@ -13,7 +13,7 @@
 ![](/result/prob2.png)
 
 ### Problem 3
-![](/result/prob3.png)
+![](/result/prob3_compared.png)
 
 ### Problem 4
 ![](/result/prob4.png)
