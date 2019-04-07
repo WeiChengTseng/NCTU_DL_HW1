@@ -7,7 +7,7 @@ from model import FullyConnectedNet
 
 np.random.seed(0)
 plt.style.use('ggplot')
-OPTIMIZER = 'adam'
+OPTIMIZER = 'sgd'
 NUM_EPOCH = 100
 
 
@@ -80,11 +80,12 @@ def plot_solvers(solvers, filename):
 
 def problem1():
     data_df = pd.read_csv('titanic.csv')
+    choice = np.random.choice(800, 800, replace=False)
     data = data_df.as_matrix()
+    data[:800] = data[:800][choice]
     train_acc, val_acc = [], []
-    for i in range(1, 9, 1):
-        print(i)
-        x_train, y_train = data[:int(i * 100), 1:], data[:int(i * 100), 0]
+    for i in range(1, 17, 1):
+        x_train, y_train = data[:int(i * 50), 1:], data[:int(i * 50), 0]
         x_test, y_test = data[800:, 1:], data[800:, 0]
         data_dict = {
             'X_train': x_train,
@@ -93,7 +94,7 @@ def problem1():
             'y_val': y_test.astype(int),
         }
 
-        model = FullyConnectedNet([3, 3],
+        model = FullyConnectedNet([7, 5, 4, 3],
                                   input_dim=6,
                                   num_classes=2,
                                   weight_scale=5e-2,
@@ -114,11 +115,12 @@ def problem1():
         train_acc.append(solver.train_acc_history[-1])
         val_acc.append(solver.val_acc_history[-1])
 
-    plt.plot(range(1, 9, 1), train_acc, '-o', label='training accuracy')
-    plt.plot(range(1, 9, 1), val_acc, '-o', label='validation accuracy')
+    index = np.array((range(1, 17, 1))) / 16
+    plt.plot(index, train_acc, '-o', label='training accuracy')
+    plt.plot(index, val_acc, '-o', label='validation accuracy')
     plt.title('Learning Curve')
-    plt.xlabel('Accuracy')
-    plt.ylabel('Ratio of Dataset')
+    plt.xlabel('Size of Dataset')
+    plt.ylabel('Accuracy')
     plt.legend()
     plt.savefig(os.path.join('./result/', 'prob1.png'), dpi=250)
 
