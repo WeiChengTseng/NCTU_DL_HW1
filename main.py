@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+import scipy as sp
+from scipy import signal
 from solver import Solver
 from model import FullyConnectedNet
 
@@ -42,7 +44,7 @@ def plot(solver, filename):
     return
 
 
-def plot_solvers(solvers, filename):
+def plot_solvers(solvers, filename, alpha=1, m='-o'):
     plt.subplot(3, 1, 1)
     plt.title('Training loss')
     plt.xlabel('Iteration')
@@ -57,19 +59,71 @@ def plot_solvers(solvers, filename):
 
     plt.subplot(3, 1, 1)
     for s in solvers:
-        plt.plot(s.loss_history, 'o', markersize=4, label=s.name)
+        plt.plot(s.loss_history, 'o', markersize=4, label=s.name, alpha=alpha)
 
     plt.subplot(3, 1, 2)
     for s in solvers:
-        plt.plot(s.train_acc_history, '-o', markersize=4, label=s.name)
+        plt.plot(
+            s.train_acc_history, m, markersize=4, label=s.name, alpha=alpha)
 
     plt.subplot(3, 1, 3)
     for s in solvers:
-        plt.plot(s.val_acc_history, '-o', markersize=4, label=s.name)
+        plt.plot(s.val_acc_history, m, markersize=4, label=s.name, alpha=alpha)
 
     for i in [1, 2, 3]:
         plt.subplot(3, 1, i)
-        plt.legend(loc='upper center', ncol=4)
+        plt.legend(ncol=4)
+    plt.gcf().set_size_inches(9, 12)
+    plt.tight_layout()
+    plt.savefig(os.path.join('./result/', filename), dpi=250)
+    plt.close()
+
+    return
+
+
+def plot_solvers_smooth(solvers, filename, alpha=1, m='-o'):
+    plt.subplot(3, 1, 1)
+    plt.title('Training loss')
+    plt.xlabel('Iteration')
+
+    plt.subplot(3, 1, 2)
+    plt.title('Training accuracy')
+    plt.xlabel('Epoch')
+
+    plt.subplot(3, 1, 3)
+    plt.title('Validation accuracy')
+    plt.xlabel('Epoch')
+
+    plt.subplot(3, 1, 1)
+    for s in solvers:
+        plt.plot(
+            sp.signal.savgol_filter(s.loss_history, 15, 2),
+            'o',
+            markersize=4,
+            label=s.name,
+            alpha=alpha)
+
+    plt.subplot(3, 1, 2)
+    for s in solvers:
+        plt.plot(
+            sp.signal.savgol_filter(s.train_acc_history, 15, 2),
+            m,
+            markersize=4,
+            label=s.name,
+            alpha=alpha)
+
+    plt.subplot(3, 1, 3)
+    for s in solvers:
+        plt.plot(
+            sp.signal.savgol_filter(s.val_acc_history, 15, 2),
+            m,
+            markersize=4,
+            label=s.name,
+            alpha=alpha)
+
+    for i in [1, 2, 3]:
+        plt.subplot(3, 1, i)
+        plt.legend(ncol=4)
     plt.gcf().set_size_inches(9, 12)
     plt.tight_layout()
     plt.savefig(os.path.join('./result/', filename), dpi=250)
@@ -80,9 +134,9 @@ def plot_solvers(solvers, filename):
 
 def problem1():
     data_df = pd.read_csv('titanic.csv')
-    choice = np.random.choice(800, 800, replace=False)
+    mask = np.random.choice(800, 800, replace=False)
     data = data_df.as_matrix()
-    data[:800] = data[:800][choice]
+    data[:800] = data[:800][mask]
     train_acc, val_acc = [], []
     for i in range(1, 17, 1):
         x_train, y_train = data[:int(i * 50), 1:], data[:int(i * 50), 0]
@@ -94,7 +148,7 @@ def problem1():
             'y_val': y_test.astype(int),
         }
 
-        model = FullyConnectedNet([7, 5, 4, 3],
+        model = FullyConnectedNet([10, 10, 10, 10],
                                   input_dim=6,
                                   num_classes=2,
                                   weight_scale=5e-2,
@@ -104,16 +158,16 @@ def problem1():
             data_dict,
             update_rule=OPTIMIZER,
             optim_config={
-                'learning_rate': 0.01,
+                'learning_rate': 0.1,
             },
-            lr_decay=0.95,
-            num_epochs=NUM_EPOCH,
-            batch_size=20,
+            lr_decay=0.98,
+            num_epochs=800,
+            batch_size=10,
             print_every=100,
             verbose=False)
         solver.train()
-        train_acc.append(solver.train_acc_history[-1])
-        val_acc.append(solver.val_acc_history[-1])
+        train_acc.append(solver.check_accuracy(x_train, y_train))
+        val_acc.append(solver.check_accuracy(x_test, y_test))
 
     index = np.array((range(1, 17, 1))) / 16
     plt.plot(index, train_acc, '-o', label='training accuracy')
@@ -188,7 +242,7 @@ def problem3():
         optim_config={
             'learning_rate': 0.01,
         },
-        lr_decay=0.95,
+        lr_decay=0.98,
         num_epochs=NUM_EPOCH,
         batch_size=40,
         print_every=100,
@@ -229,7 +283,7 @@ def problem3():
         optim_config={
             'learning_rate': 0.01,
         },
-        lr_decay=0.95,
+        lr_decay=0.98,
         num_epochs=NUM_EPOCH,
         batch_size=40,
         print_every=100,
@@ -242,6 +296,77 @@ def problem3():
 
 
 def problem4():
+    data_df = pd.read_csv('titanic.csv')
+    col = list(data_df.columns)[1:]
+    solvers = []
+    for i in col:
+        data = data_df.drop(i, axis=1).as_matrix()
+        # print(data_df.drop(i, axis=1).head())
+        x_train, y_train = data[:800, 1:], data[:800, 0]
+        x_test, y_test = data[800:, 1:], data[800:, 0]
+        data = {
+            'X_train': x_train,
+            'y_train': y_train.astype(int),
+            'X_val': x_test,
+            'y_val': y_test.astype(int),
+        }
+
+        model_4 = FullyConnectedNet([3, 3],
+                                    input_dim=5,
+                                    num_classes=2,
+                                    weight_scale=5e-2,
+                                    reg=1e-4)
+        solver_4 = Solver(
+            model_4,
+            data,
+            update_rule=OPTIMIZER,
+            optim_config={
+                'learning_rate': 0.1,
+            },
+            lr_decay=0.98,
+            num_epochs=250,
+            batch_size=20,
+            print_every=100,
+            verbose=False,
+            name='without ' + i)
+        solver_4.train()
+        solvers.append(solver_4)
+
+    data = data_df.as_matrix()
+
+    x_train, y_train = data[:800, 1:], data[:800, 0]
+    x_test, y_test = data[800:, 1:], data[800:, 0]
+
+    data = {
+        'X_train': x_train,
+        'y_train': y_train.astype(int),
+        'X_val': x_test,
+        'y_val': y_test.astype(int),
+    }
+
+    model_ori = FullyConnectedNet([3, 3],
+                                  input_dim=6,
+                                  num_classes=2,
+                                  weight_scale=5e-2,
+                                  reg=1e-4)
+    solver_ori = Solver(
+        model_ori,
+        data,
+        update_rule=OPTIMIZER,
+        optim_config={
+            'learning_rate': 0.1,
+        },
+        lr_decay=0.99,
+        num_epochs=250,
+        batch_size=20,
+        print_every=100,
+        name='original',
+        verbose=False)
+    solver_ori.train()
+    solvers.append(solver_ori)
+
+    plot_solvers_smooth(solvers, 'prob4.png', 0.8, '-')
+
     return
 
 
@@ -326,8 +451,9 @@ def problem6():
 
 
 if __name__ == '__main__':
-    problem1()
+    # problem1()
     # problem2()
     # problem3()
+    problem4()
     # problem5()
     pass
