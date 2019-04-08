@@ -10,7 +10,7 @@ from model import FullyConnectedNet
 np.random.seed(0)
 plt.style.use('ggplot')
 OPTIMIZER = 'sgd'
-NUM_EPOCH = 100
+NUM_EPOCH = 600
 
 
 def plot(solver, filename):
@@ -32,6 +32,36 @@ def plot(solver, filename):
     plt.plot(solver.train_acc_history, '-o', markersize=4)
     plt.subplot(3, 1, 3)
     plt.plot(solver.val_acc_history, '-o', markersize=4)
+
+    for i in [1, 2, 3]:
+        plt.subplot(3, 1, i)
+        # plt.legend(loc='upper center', ncol=4)
+    plt.gcf().set_size_inches(9, 12)
+    plt.tight_layout()
+    plt.savefig(os.path.join('./result/', filename), dpi=250)
+    plt.close()
+
+    return
+
+def plot_smooth(solver, filename, a=1, m='-o'):
+    plt.subplot(3, 1, 1)
+    plt.title('Training loss')
+    plt.xlabel('Iteration')
+
+    plt.subplot(3, 1, 2)
+    plt.title('Training accuracy')
+    plt.xlabel('Epoch')
+
+    plt.subplot(3, 1, 3)
+    plt.title('Validation accuracy')
+    plt.xlabel('Epoch')
+
+    plt.subplot(3, 1, 1)
+    plt.plot(sp.signal.savgol_filter(solver.loss_history, 9, 2), m, markersize=4, alpha=a)
+    plt.subplot(3, 1, 2)
+    plt.plot(sp.signal.savgol_filter(solver.train_acc_history, 9, 2), m, markersize=4, alpha=a)
+    plt.subplot(3, 1, 3)
+    plt.plot(sp.signal.savgol_filter(solver.val_acc_history, 9, 2), m, markersize=4, alpha=a)
 
     for i in [1, 2, 3]:
         plt.subplot(3, 1, i)
@@ -148,7 +178,7 @@ def problem1():
             'y_val': y_test.astype(int),
         }
 
-        model = FullyConnectedNet([10, 10, 10, 10],
+        model = FullyConnectedNet([50, 50, 10],
                                   input_dim=6,
                                   num_classes=2,
                                   weight_scale=5e-2,
@@ -158,9 +188,9 @@ def problem1():
             data_dict,
             update_rule=OPTIMIZER,
             optim_config={
-                'learning_rate': 0.1,
+                'learning_rate': 0.05,
             },
-            lr_decay=0.98,
+            lr_decay=0.95,
             num_epochs=800,
             batch_size=10,
             print_every=100,
@@ -204,15 +234,15 @@ def problem2():
         data,
         update_rule=OPTIMIZER,
         optim_config={
-            'learning_rate': 0.01,
+            'learning_rate': 0.1,
         },
-        lr_decay=0.95,
+        lr_decay=0.98,
         num_epochs=NUM_EPOCH,
         batch_size=40,
         print_every=100,
         verbose=False)
     solver_2.train()
-    plot(solver_2, 'prob2.png')
+    plot_smooth(solver_2, 'prob2.png', a=0.8, m='-')
     return
 
 
@@ -452,8 +482,8 @@ def problem6():
 
 if __name__ == '__main__':
     # problem1()
-    # problem2()
+    problem2()
     # problem3()
-    problem4()
+    # problem4()
     # problem5()
     pass
