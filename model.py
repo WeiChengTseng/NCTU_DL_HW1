@@ -68,6 +68,7 @@ class FullyConnectedNet(object):
         L = self.num_layers
         self.params_bn = {}
 
+        # parameter setting
         self.params['W1'] = weight_scale * np.random.randn(
             input_dim, hidden_dims[0])
         self.params['b1'] = np.zeros(hidden_dims[0])
