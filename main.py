@@ -226,22 +226,26 @@ def problem1():
     plt.ylabel('Accuracy')
     plt.legend()
     plt.savefig(os.path.join('./result/', 'prob1.png'), dpi=250)
+    plt.close()
 
     plt.plot(range(len(solver.loss_history)), solver.loss_history, '-')
     plt.title('Loss Curve')
     plt.xlabel('Iteration')
     plt.ylabel('Loss')
     plt.savefig(os.path.join('./result/', 'prob1_loss.png'), dpi=250)
+    plt.close()
 
     plt.plot(
-        range(len(solver.train_acc_history)), 1 - solver.train_acc_history,
-        '-')
+        range(len(solver.train_acc_history)),
+        1 - np.array(solver.train_acc_history), '-', label='Training')
     plt.plot(
-        range(len(solver.val_acc_history)), 1 - solver.val_acc_history, '-')
+        range(len(solver.val_acc_history)),
+        1 - np.array(solver.val_acc_history), '-', label='Testing')
     plt.title('Error Rate Curve')
     plt.xlabel('Iteration')
     plt.ylabel('Error Rate')
     plt.savefig(os.path.join('./result/', 'prob1_error.png'), dpi=250)
+    plt.close()
 
     return
 
@@ -644,10 +648,10 @@ def his(FEAT, feat_analysis, nbin, upper_bound=1e5):
 
 
 if __name__ == '__main__':
-    # problem1()
+    problem1()
     # problem2()
     # problem3()
     # problem4()
     # problem5()
-    problem6()
+    # problem6()
     pass
