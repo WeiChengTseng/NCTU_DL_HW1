@@ -270,20 +270,20 @@ def problem1():
             'y_val': y_test.astype(int),
         }
 
-        model = FullyConnectedNet([50, 50, 10],
+        model = FullyConnectedNet([3, 3, 3, 3],
                                   input_dim=6,
                                   num_classes=2,
                                   weight_scale=5e-2,
-                                  reg=1e-4)
+                                  reg=1e-5)
         solver = Solver(
             model,
             data_dict,
-            update_rule=OPTIMIZER,
+            update_rule='sgd',
             optim_config={
-                'learning_rate': 0.05,
+                'learning_rate': 0.01,
             },
-            lr_decay=0.95,
-            num_epochs=800,
+            lr_decay=0.999,
+            num_epochs=2000,
             batch_size=10,
             print_every=100,
             verbose=False)
@@ -292,6 +292,8 @@ def problem1():
         val_acc.append(solver.check_accuracy(x_test, y_test))
 
     index = np.array((range(1, 17, 1))) / 16
+    plt.gcf().set_size_inches(8, 4.5)
+    plt.tight_layout()
     plt.plot(index, train_acc, '-o', label='training accuracy')
     plt.plot(index, val_acc, '-o', label='validation accuracy')
     plt.title('Learning Curve')
@@ -301,13 +303,17 @@ def problem1():
     plt.savefig(os.path.join('./result/', 'prob1.png'), dpi=250)
     plt.close()
 
-    plt.plot(range(len(solver.loss_history)), solver.loss_history, '-')
+    plt.gcf().set_size_inches(8, 4.5)
+    plt.plot(
+        range(len(solver.loss_history)),
+        sp.signal.savgol_filter(solver.loss_history, 201, 2), '-')
     plt.title('Loss Curve')
     plt.xlabel('Iteration')
     plt.ylabel('Loss')
     plt.savefig(os.path.join('./result/', 'prob1_loss.png'), dpi=250)
     plt.close()
 
+    plt.gcf().set_size_inches(8, 4.5)
     plt.plot(
         range(len(solver.train_acc_history)),
         1 - np.array(solver.train_acc_history),
@@ -341,53 +347,78 @@ def problem2():
         'y_val': y_test.astype(int),
     }
 
-    # model_2 = FullyConnectedNet([3, 3],
-    #                             input_dim=6,
-    #                             num_classes=2,
-    #                             weight_scale=5e-2,
-    #                             reg=1e-5)
     # grid_search(
     #     data,
     #     weight_scale=list(np.logspace(0, -3, 4)),
     #     reg=list(np.logspace(-1, -5, 5)),
-    #     lr=list(np.logspace(-1, -4, 8)),
+    #     lr=list(np.logspace(-1, -4, 4)),
     #     lr_dec=list(np.linspace(0.9, 1, 5)),
     #     batch_size=list(np.linspace(5, 100, 5, dtype=int))
     # )
-    # return
+
     model_2 = FullyConnectedNet([3, 3],
                                 input_dim=6,
                                 num_classes=2,
-                                weight_scale=0.05,
+                                weight_scale=5e-2,
                                 reg=1e-5)
     solver_2 = Solver(
         model_2,
         data,
-        update_rule='sgd',
+        update_rule=OPTIMIZER,
         optim_config={
-            'learning_rate': 0.01,
+            'learning_rate': 0.1,
         },
-        lr_decay=0.999,
-        num_epochs=800,
-        batch_size=8,
+        lr_decay=0.98,
+        num_epochs=600,
+        batch_size=40,
         print_every=100,
-        verbose=False)
-
-    # solver_2 = Solver(
-    #     model_2,
-    #     data,
-    #     update_rule=OPTIMIZER,
-    #     optim_config={
-    #         'learning_rate': 0.1,
-    #     },
-    #     lr_decay=0.98,
-    #     num_epochs=NUM_EPOCH,
-    #     batch_size=40,
-    #     print_every=100,
-    #     verbose=False)
+        verbose=False,
+        name='SGD')
     solver_2.train()
+
+    model_adam = FullyConnectedNet([3, 3],
+                                   input_dim=6,
+                                   num_classes=2,
+                                   weight_scale=5e-2,
+                                   reg=1e-5)
+    solver_adma = Solver(
+        model_adam,
+        data,
+        update_rule='adam',
+        optim_config={
+            'learning_rate': 1e-3,
+        },
+        lr_decay=0.98,
+        num_epochs=600,
+        batch_size=40,
+        print_every=100,
+        verbose=False,
+        name='Adam')
+    solver_adma.train()
+
+    model_rmsp = FullyConnectedNet([3, 3],
+                                   input_dim=6,
+                                   num_classes=2,
+                                   weight_scale=5e-2,
+                                   reg=1e-5)
+    solver_rmsp = Solver(
+        model_rmsp,
+        data,
+        update_rule='rmsprop',
+        optim_config={
+            'learning_rate': 1e-2,
+        },
+        lr_decay=0.98,
+        num_epochs=600,
+        batch_size=40,
+        print_every=100,
+        verbose=False,
+        name='rmsprop')
+    solver_rmsp.train()
     # plot_smooth(solver_2, 'prob2.png', a=0.8, m='-')
     plot(solver_2, 'prob2.png', a=0.8, m='-')
+    plot_solvers_smooth([solver_2, solver_adma, solver_rmsp], 'prob2_op.png',
+                        0.7, '-')
     return
 
 
@@ -734,9 +765,9 @@ def his(FEAT, feat_analysis, nbin, upper_bound=1e5):
 
 if __name__ == '__main__':
     # problem1()
-    # problem2()
+    problem2()
     # problem3()
     # problem4()
-    problem5()
+    # problem5()
     # problem6()
     pass

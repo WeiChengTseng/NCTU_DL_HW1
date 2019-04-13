@@ -8,15 +8,17 @@
 
 ### Problem 1
 ![](/result/prob1.png)
+#### Initialization
+We initialize the weight with a normal distribution N(0, n). Also, we initialize the bias with 0.
 
 ### Problem 2
 ![](/result/prob2.png)
-
+We construct a DNN with the number of neuron [6, 3, 3, 2]. To find the hypermeters, we apply grid search to get the best hyperparameters.
 
 
 ### Problem 3
 ![](/result/prob3_compared.png)
-According to the figures, it is obvious that standardization on scalar feature is helpful. Model with standardization converges faster than that without standardization. We also find that we need to initialize larger weights to model with standardization.
+According to the figures, it is obvious that standardization on scalar feature is helpful. Model with standardization converges faster than that without standardization. We also find that we need to initialize weights with a larger variance to model with standardization. One possible reason for this phenomenon is that the value of **Fare** is much larger than other feature. If the weights are too large, gradient explosion may happen. However, since we standardize the Fare, we can initialize weights with larger variance.
 
 ### Problem 4
 ![](/result/prob4.png)
@@ -35,3 +37,12 @@ At 00:05 on 15 April 1912, Captain Smith ordered the ship's lifeboats uncovered 
 From the figures, we can get three conclusions. First, women (`Sex` = 0) were more likely to survive. Second, the passengers who paid higher passenger fare were more likely to survive. Third, those who has better ticket class were more likely to survive.
 
 Therefore, we create fake data with the conclusions mentioned above.
+
+
+||Pclass|Sex|Age|SibSp|Parch|Fare|
+|-|-|-|-|-|-|-|
+|fake survivor|1|0|22|0|0|70|
+|fake victim|3|1|42|5|0|5|
+
+survivor = np.array([1, 0, 22, 0, 0, 70.0])
+victim = np.array([3, 1, 42, 5, 0, 5.0])
