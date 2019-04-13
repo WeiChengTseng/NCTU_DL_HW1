@@ -29,6 +29,6 @@ At 00:05 on 15 April 1912, Captain Smith ordered the ship's lifeboats uncovered 
 ![](/result/prob6_Pclass.png)
 ![](/result/prob6_Sex.png)
 
-From the figures, we can get three conclusions. First, women (`Sex` = 0) were more likely to survive. Second, the passengers who paid higher passenger fare were more likely to survive. Third, those who has better ticket class were more likely to survive. 
+From the figures, we can get three conclusions. First, women (`Sex` = 0) were more likely to survive. Second, the passengers who paid higher passenger fare were more likely to survive. Third, those who has better ticket class were more likely to survive.
 
-Therefore, 
+Therefore, we create fake data with the conclusions mentioned above.

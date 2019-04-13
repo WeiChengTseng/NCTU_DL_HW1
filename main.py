@@ -19,6 +19,73 @@ OPTIMIZER = 'sgd'
 NUM_EPOCH = 600
 
 
+def hyperpara_combination(hp_range, cur_set=[]):
+    if cur_set == []:
+        hp, r = list(hp_range.items())[0]
+        if not isinstance(r, list):
+            cur_set = [{hp: r}]
+        else:
+            cur_set = list(map(lambda x: {hp: x}, r))
+        del hp_range[hp]
+    if hp_range == {}:
+        return cur_set
+    else:
+        next_set = []
+        hp, r = list(hp_range.items())[0]
+        print(hp, r)
+        if not (isinstance(r, list)):
+            tmp_set = cur_set.copy()
+            for i in cur_set.copy():
+                i.update({hp: r})
+            _ = map(lambda x: x.update({hp: r}), tmp_set)
+            print(tmp_set)
+            next_set = next_set + tmp_set
+        else:
+            for j in r:
+                tmp_set = cur_set.copy()
+                for i in cur_set.copy():
+                    i.update({hp: j})
+                next_set = next_set + tmp_set
+                print(tmp_set)
+        del hp_range[hp], cur_set
+        # print('->', next_set)
+        return hyperpara_combination(hp_range, next_set)
+
+
+def grid_search(data, **kwargs):
+    hp_range = {
+        'in_dim': kwargs.get('in_dim', 6),
+        'ws': kwargs.get('weight_scale', 1e-1),
+        'bs': kwargs.get('batch_size', 8),
+        'lr_dec': kwargs.get('lr_dec', 0.99),
+        'lr': kwargs.get('lr', 1e-3)
+    }
+    print(hp_range)
+    hyper_set = hyperpara_combination(hp_range)
+    print(hyper_set)
+    return
+    for s in hyper_set:
+        model = FullyConnectedNet([3, 3],
+                                  input_dim=s['in_dim'],
+                                  num_classes=2,
+                                  weight_scale=s['ws'],
+                                  reg=1e-4)
+        solver = Solver(
+            model,
+            data,
+            update_rule=OPTIMIZER,
+            optim_config={
+                'learning_rate': s['lr'],
+            },
+            lr_decay=s['lr_dec'],
+            num_epochs=NUM_EPOCH,
+            batch_size=s['bs'],
+            print_every=100,
+            verbose=False)
+        solver.train()
+    return
+
+
 def plot(solver, filename):
     plt.subplot(3, 1, 1)
     plt.title('Training loss')
@@ -237,13 +304,18 @@ def problem1():
 
     plt.plot(
         range(len(solver.train_acc_history)),
-        1 - np.array(solver.train_acc_history), '-', label='Training')
+        1 - np.array(solver.train_acc_history),
+        '-',
+        label='Training')
     plt.plot(
         range(len(solver.val_acc_history)),
-        1 - np.array(solver.val_acc_history), '-', label='Testing')
+        1 - np.array(solver.val_acc_history),
+        '-',
+        label='Testing')
     plt.title('Error Rate Curve')
     plt.xlabel('Iteration')
     plt.ylabel('Error Rate')
+    plt.legend()
     plt.savefig(os.path.join('./result/', 'prob1_error.png'), dpi=250)
     plt.close()
 
@@ -268,7 +340,8 @@ def problem2():
     #                             num_classes=2,
     #                             weight_scale=5e-2,
     #                             reg=1e-5)
-
+    grid_search(data, weight_scale=[1, 0.1])
+    return
     model_2 = FullyConnectedNet([3, 3],
                                 input_dim=6,
                                 num_classes=2,
@@ -375,7 +448,7 @@ def problem3():
         num_epochs=NUM_EPOCH,
         batch_size=40,
         print_every=100,
-        name='normalized',
+        name='standardized',
         verbose=False)
     solver_3_nor.train()
     plot(solver_3_nor, 'prob3_nor.png')
@@ -630,26 +703,24 @@ def his(FEAT, feat_analysis, nbin, upper_bound=1e5):
     plt.tight_layout()
 
     his_s, his_v = np.array(his_s), np.array(his_v)
-    # plt.hist(his_s, len(x), align='mid', label='Survivors')
-    # plt.hist(his_v, len(x), align='mid', label='Victims')
     plt.hist([his_s, his_v],
              nbin,
              align='mid',
              label=['Survivors', 'Victims'],
              density=True,
              log=False)
+
     plt.xlabel(FEAT)
     plt.ylabel('Normalized Number of Pensangers')
     plt.legend()
     plt.savefig('./result/prob6_{}.png'.format(FEAT), dpi=250)
     plt.close()
-    # plt.show()
     return
 
 
 if __name__ == '__main__':
-    problem1()
-    # problem2()
+    # problem1()
+    problem2()
     # problem3()
     # problem4()
     # problem5()
