@@ -92,7 +92,7 @@ def grid_search(data, **kwargs):
     return
 
 
-def plot(solver, filename):
+def plot(solver, filename, a=1, m='-o'):
     plt.subplot(3, 1, 1)
     plt.title('Training loss')
     plt.xlabel('Iteration')
@@ -106,11 +106,11 @@ def plot(solver, filename):
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 1)
-    plt.plot(solver.loss_history, 'o', markersize=4)
+    plt.plot(solver.loss_history, 'o', markersize=4, alpha=a)
     plt.subplot(3, 1, 2)
-    plt.plot(solver.train_acc_history, '-o', markersize=4)
+    plt.plot(solver.train_acc_history, m, markersize=4, alpha=a)
     plt.subplot(3, 1, 3)
-    plt.plot(solver.val_acc_history, '-o', markersize=4)
+    plt.plot(solver.val_acc_history, m, markersize=4, alpha=a)
 
     for i in [1, 2, 3]:
         plt.subplot(3, 1, i)
@@ -346,30 +346,30 @@ def problem2():
     #                             num_classes=2,
     #                             weight_scale=5e-2,
     #                             reg=1e-5)
-    grid_search(
-        data,
-        weight_scale=list(np.logspace(0, -3, 4)),
-        reg=list(np.logspace(-1, -5, 5)),
-        lr=list(np.logspace(-1, -4, 8)),
-        lr_dec=list(np.linspace(0.9, 1, 5)),
-        batch_size=list(np.linspace(5, 100, 5, dtype=int))
-    )
+    # grid_search(
+    #     data,
+    #     weight_scale=list(np.logspace(0, -3, 4)),
+    #     reg=list(np.logspace(-1, -5, 5)),
+    #     lr=list(np.logspace(-1, -4, 8)),
+    #     lr_dec=list(np.linspace(0.9, 1, 5)),
+    #     batch_size=list(np.linspace(5, 100, 5, dtype=int))
+    # )
     # return
     model_2 = FullyConnectedNet([3, 3],
                                 input_dim=6,
                                 num_classes=2,
-                                weight_scale=0.01,
-                                reg=0.1)
+                                weight_scale=0.05,
+                                reg=1e-5)
     solver_2 = Solver(
         model_2,
         data,
         update_rule='sgd',
         optim_config={
-            'learning_rate': 0.0002682695795279727,
+            'learning_rate': 0.01,
         },
         lr_decay=0.999,
-        num_epochs=1000,
-        batch_size=26,
+        num_epochs=800,
+        batch_size=8,
         print_every=100,
         verbose=False)
 
@@ -386,7 +386,8 @@ def problem2():
     #     print_every=100,
     #     verbose=False)
     solver_2.train()
-    plot_smooth(solver_2, 'prob2.png', a=0.8, m='-')
+    # plot_smooth(solver_2, 'prob2.png', a=0.8, m='-')
+    plot(solver_2, 'prob2.png', a=0.8, m='-')
     return
 
 
@@ -448,7 +449,7 @@ def problem3():
     model_3_nor = FullyConnectedNet([3, 3],
                                     input_dim=6,
                                     num_classes=2,
-                                    weight_scale=5e-2,
+                                    weight_scale=5e-1,
                                     reg=1e-4)
     solver_3_nor = Solver(
         model_3_nor,
@@ -573,9 +574,9 @@ def problem5():
         optim_config={
             'learning_rate': 0.01,
         },
-        lr_decay=0.98,
+        lr_decay=0.999,
         num_epochs=NUM_EPOCH,
-        batch_size=40,
+        batch_size=8,
         print_every=100,
         name='original',
         verbose=False)
@@ -611,15 +612,15 @@ def problem5():
         optim_config={
             'learning_rate': 0.01,
         },
-        lr_decay=0.98,
+        lr_decay=0.999,
         num_epochs=NUM_EPOCH,
-        batch_size=40,
+        batch_size=8,
         print_every=100,
         name='categorical',
         verbose=False)
     solver_5_cat.train()
     plot(solver_5_cat, 'prob5_cat.png')
-    plot_solvers([solver_5, solver_5_cat], 'prob5_compared.png')
+    plot_solvers([solver_5, solver_5_cat], 'prob5_compared.png', m='-')
     return
 
 
@@ -733,9 +734,9 @@ def his(FEAT, feat_analysis, nbin, upper_bound=1e5):
 
 if __name__ == '__main__':
     # problem1()
-    problem2()
+    # problem2()
     # problem3()
     # problem4()
-    # problem5()
+    problem5()
     # problem6()
     pass
