@@ -3,6 +3,8 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import scipy as sp
+import copy
+import tqdm
 from scipy import signal
 from solver import Solver
 from model import FullyConnectedNet
@@ -16,7 +18,7 @@ except:
 np.random.seed(0)
 # plt.style.use('ggplot')
 OPTIMIZER = 'sgd'
-NUM_EPOCH = 600
+NUM_EPOCH = 400
 
 
 def hyperpara_combination(hp_range, cur_set=[]):
@@ -32,21 +34,21 @@ def hyperpara_combination(hp_range, cur_set=[]):
     else:
         next_set = []
         hp, r = list(hp_range.items())[0]
-        print(hp, r)
+        # print(hp, r)
         if not (isinstance(r, list)):
-            tmp_set = cur_set.copy()
-            for i in cur_set.copy():
+            tmp_set = copy.deepcopy(cur_set)
+            for i in tmp_set:
                 i.update({hp: r})
             _ = map(lambda x: x.update({hp: r}), tmp_set)
-            print(tmp_set)
+            # print('->', tmp_set)
             next_set = next_set + tmp_set
         else:
             for j in r:
-                tmp_set = cur_set.copy()
-                for i in cur_set.copy():
+                tmp_set = copy.deepcopy(cur_set)
+                for i in tmp_set:
                     i.update({hp: j})
                 next_set = next_set + tmp_set
-                print(tmp_set)
+                # print('->', tmp_set)
         del hp_range[hp], cur_set
         # print('->', next_set)
         return hyperpara_combination(hp_range, next_set)
@@ -55,21 +57,22 @@ def hyperpara_combination(hp_range, cur_set=[]):
 def grid_search(data, **kwargs):
     hp_range = {
         'in_dim': kwargs.get('in_dim', 6),
-        'ws': kwargs.get('weight_scale', 1e-1),
         'bs': kwargs.get('batch_size', 8),
+        'ws': kwargs.get('weight_scale', 1e-1),
+        'reg': kwargs.get('reg', 1e-3),
         'lr_dec': kwargs.get('lr_dec', 0.99),
         'lr': kwargs.get('lr', 1e-3)
     }
-    print(hp_range)
+    # print(hp_range)
     hyper_set = hyperpara_combination(hp_range)
-    print(hyper_set)
-    return
-    for s in hyper_set:
+    # print(hyper_set)
+    acc = []
+    for s in tqdm.tqdm(hyper_set):
         model = FullyConnectedNet([3, 3],
                                   input_dim=s['in_dim'],
                                   num_classes=2,
                                   weight_scale=s['ws'],
-                                  reg=1e-4)
+                                  reg=s['reg'])
         solver = Solver(
             model,
             data,
@@ -83,6 +86,9 @@ def grid_search(data, **kwargs):
             print_every=100,
             verbose=False)
         solver.train()
+        acc.append(solver.check_accuracy(data['X_val'], data['y_val']))
+    print(max(acc))
+    print(hyper_set[np.argmax(acc)])
     return
 
 
@@ -340,7 +346,14 @@ def problem2():
     #                             num_classes=2,
     #                             weight_scale=5e-2,
     #                             reg=1e-5)
-    grid_search(data, weight_scale=[1, 0.1])
+    grid_search(
+        data,
+        weight_scale=list(np.logspace(0, -3, 8)),
+        reg=list(np.logspace(-1, -5, 10)),
+        lr=list(np.logspace(-1, -4, 8)),
+        lr_dec=list(np.linspace(0.9, 1, 5)),
+        batch_size=list(np.linspace(5, 100, 10))
+    )
     return
     model_2 = FullyConnectedNet([3, 3],
                                 input_dim=6,
