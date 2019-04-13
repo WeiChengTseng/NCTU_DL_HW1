@@ -352,7 +352,7 @@ def problem2():
         reg=list(np.logspace(-1, -5, 10)),
         lr=list(np.logspace(-1, -4, 8)),
         lr_dec=list(np.linspace(0.9, 1, 5)),
-        batch_size=list(np.linspace(5, 100, 10))
+        batch_size=list(np.linspace(5, 100, 10, dtype=int))
     )
     return
     model_2 = FullyConnectedNet([3, 3],
