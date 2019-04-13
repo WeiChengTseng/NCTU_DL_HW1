@@ -348,28 +348,28 @@ def problem2():
     #                             reg=1e-5)
     grid_search(
         data,
-        weight_scale=list(np.logspace(0, -3, 8)),
-        reg=list(np.logspace(-1, -5, 10)),
+        weight_scale=list(np.logspace(0, -3, 4)),
+        reg=list(np.logspace(-1, -5, 5)),
         lr=list(np.logspace(-1, -4, 8)),
         lr_dec=list(np.linspace(0.9, 1, 5)),
-        batch_size=list(np.linspace(5, 100, 10, dtype=int))
+        batch_size=list(np.linspace(5, 100, 5, dtype=int))
     )
-    return
+    # return
     model_2 = FullyConnectedNet([3, 3],
                                 input_dim=6,
                                 num_classes=2,
                                 weight_scale=0.01,
-                                reg=0)
+                                reg=0.1)
     solver_2 = Solver(
         model_2,
         data,
-        update_rule='adam',
+        update_rule='sgd',
         optim_config={
-            'learning_rate': 1e-3,
+            'learning_rate': 0.0002682695795279727,
         },
         lr_decay=0.999,
         num_epochs=1000,
-        batch_size=8,
+        batch_size=26,
         print_every=100,
         verbose=False)
 
