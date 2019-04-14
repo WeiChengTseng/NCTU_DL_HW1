@@ -8,7 +8,7 @@ import tqdm
 from scipy import signal
 from solver import Solver
 from model import FullyConnectedNet
-from util import *
+from utils import *
 
 try:
     plt.style.use('gadfly')
@@ -245,7 +245,6 @@ def problem3():
     x_train[:, -1] = (x_train[:, -1] - fare_mean) / fare_std
     x_test[:, -1] = (x_test[:, -1] - fare_mean) / fare_std
 
-
     data = {
         'X_train': x_train,
         'y_train': y_train.astype(int),
@@ -254,10 +253,10 @@ def problem3():
     }
 
     model_3_st = FullyConnectedNet([3, 3],
-                                    input_dim=6,
-                                    num_classes=2,
-                                    weight_scale=5e-1,
-                                    reg=1e-4)
+                                   input_dim=6,
+                                   num_classes=2,
+                                   weight_scale=5e-1,
+                                   reg=1e-4)
     solver_3_st = Solver(
         model_3_st,
         data,
@@ -273,7 +272,6 @@ def problem3():
         verbose=False)
     solver_3_st.train()
     plot(solver_3_st, 'prob3_nor.png')
-
 
     model_3_all = FullyConnectedNet([3, 3],
                                     input_dim=6,

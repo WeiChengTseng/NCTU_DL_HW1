@@ -253,6 +253,6 @@ def plot_solvers_smooth(solvers, filename, alpha=1, m='-o'):
 
     return
 
+
 def smooth(value):
     return sp.signal.savgol_filter(value, 5, 2)
-
