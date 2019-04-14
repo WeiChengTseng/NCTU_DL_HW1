@@ -216,18 +216,18 @@ def problem3():
     model_3 = FullyConnectedNet([3, 3],
                                 input_dim=6,
                                 num_classes=2,
-                                weight_scale=5e-2,
+                                weight_scale=1e-1,
                                 reg=1e-4)
     solver_3 = Solver(
         model_3,
         data,
         update_rule=OPTIMIZER,
         optim_config={
-            'learning_rate': 0.001,
+            'learning_rate': 0.0138,
         },
         lr_decay=0.98,
         num_epochs=NUM_EPOCH,
-        batch_size=40,
+        batch_size=100,
         print_every=100,
         name='original',
         verbose=False)
@@ -255,18 +255,18 @@ def problem3():
     model_3_st = FullyConnectedNet([3, 3],
                                    input_dim=6,
                                    num_classes=2,
-                                   weight_scale=5e-1,
+                                   weight_scale=1e-1,
                                    reg=1e-4)
     solver_3_st = Solver(
         model_3_st,
         data,
         update_rule=OPTIMIZER,
         optim_config={
-            'learning_rate': 0.001,
+            'learning_rate': 0.0138,
         },
         lr_decay=0.98,
         num_epochs=NUM_EPOCH,
-        batch_size=40,
+        batch_size=100,
         print_every=100,
         name='standardize Fare',
         verbose=False)
@@ -276,7 +276,7 @@ def problem3():
     model_3_all = FullyConnectedNet([3, 3],
                                     input_dim=6,
                                     num_classes=2,
-                                    weight_scale=5e-1,
+                                    weight_scale=1e-1,
                                     reg=1e-4)
     x_train[:, 2] = (x_train[:, 2] - age_mean) / age_std
     x_test[:, 2] = (x_test[:, 2] - age_mean) / age_std
@@ -291,11 +291,11 @@ def problem3():
         data,
         update_rule=OPTIMIZER,
         optim_config={
-            'learning_rate': 0.001,
+            'learning_rate': 0.0138,
         },
         lr_decay=0.98,
         num_epochs=NUM_EPOCH,
-        batch_size=40,
+        batch_size=100,
         print_every=100,
         name='standardize All',
         verbose=False)
@@ -310,8 +310,8 @@ def problem3():
 
 def problem4():
     data_df = pd.read_csv('titanic.csv')
-    col = list(data_df.columns)[1:]
-    solvers = []
+    col, solvers = list(data_df.columns)[1:], []
+    # solvers = []
     for i in col:
         data = data_df.drop(i, axis=1).values
         # print(data_df.drop(i, axis=1).head())
@@ -367,7 +367,7 @@ def problem4():
         data,
         update_rule=OPTIMIZER,
         optim_config={
-            'learning_rate': 0.001,
+            'learning_rate': 0.0138,
         },
         lr_decay=0.98,
         num_epochs=600,
@@ -568,10 +568,10 @@ def his(FEAT, feat_analysis, nbin, upper_bound=1e5):
 
 
 if __name__ == '__main__':
-    problem1()
-    problem2()
+    # problem1()
+    # problem2()
     problem3()
-    problem4()
-    problem5()
-    problem6()
+    # problem4()
+    # problem5()
+    # problem6()
     pass
