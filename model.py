@@ -213,7 +213,7 @@ class FullyConnectedNet(object):
                 dh, cache[i])
             grads['W' + str(i)] += self.params['W' + str(i)] * self.reg
         pass
-        #print(grads['gamma1'])
+
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################

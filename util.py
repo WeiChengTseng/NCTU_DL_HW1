@@ -94,15 +94,15 @@ def grid_search(data, **kwargs):
 
 def plot(solver, filename, a=1, m='-o'):
     plt.subplot(3, 1, 1)
-    plt.title('Training loss')
+    plt.title('Training Loss')
     plt.xlabel('Iteration')
 
     plt.subplot(3, 1, 2)
-    plt.title('Training accuracy')
+    plt.title('Training Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 3)
-    plt.title('Validation accuracy')
+    plt.title('Testing Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 1)
@@ -125,15 +125,15 @@ def plot(solver, filename, a=1, m='-o'):
 
 def plot_smooth(solver, filename, a=1, m='-o'):
     plt.subplot(3, 1, 1)
-    plt.title('Training loss')
+    plt.title('Training Loss')
     plt.xlabel('Iteration')
 
     plt.subplot(3, 1, 2)
-    plt.title('Training accuracy')
+    plt.title('Training Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 3)
-    plt.title('Validation accuracy')
+    plt.title('Testing Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 1)
@@ -168,15 +168,15 @@ def plot_smooth(solver, filename, a=1, m='-o'):
 
 def plot_solvers(solvers, filename, alpha=1, m='-o'):
     plt.subplot(3, 1, 1)
-    plt.title('Training loss')
+    plt.title('Training Loss')
     plt.xlabel('Iteration')
 
     plt.subplot(3, 1, 2)
-    plt.title('Training accuracy')
+    plt.title('Training Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 3)
-    plt.title('Validation accuracy')
+    plt.title('Testing Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 1)
@@ -205,15 +205,15 @@ def plot_solvers(solvers, filename, alpha=1, m='-o'):
 
 def plot_solvers_smooth(solvers, filename, alpha=1, m='-o'):
     plt.subplot(3, 1, 1)
-    plt.title('Training loss')
+    plt.title('Training Loss')
     plt.xlabel('Iteration')
 
     plt.subplot(3, 1, 2)
-    plt.title('Training accuracy')
+    plt.title('Training Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 3)
-    plt.title('Validation accuracy')
+    plt.title('Testing Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 1)
@@ -252,4 +252,7 @@ def plot_solvers_smooth(solvers, filename, alpha=1, m='-o'):
     plt.close()
 
     return
+
+def smooth(value):
+    return sp.signal.savgol_filter(value, 5, 2)
 
