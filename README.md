@@ -7,12 +7,31 @@
 ## Deep Neural Network for Classification
 
 ### Problem 1
-![](/result/prob1.png)
+![](/result/prob1_loss.png)
+![](/result/prob1_error.png)
+#### Grid Search
+Since there are too many hyperparameters to search. We apply grid search to get relative better hyperparameters. Our hyperparameters are shown as below
+- learning rate (lr): The initial learninig rate of the optimizers. Our search range is [0.1, 0.0372, 0.0138, 0.0051, 0.0019, 0.00071, 0.00026, 0.0001].
+- learning rate decay rate (lr_dec): We apply exponential decay on the learning every epoch, i.e., $lr_{new} = lr_{original} * lr_{dec}$. Our search range is [0.9, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 1]
+- batch size (bs): The size of a mini batch during the training. Our search range is [5, 28, 52, 76, 100].
+- regularization weight ($\lambda$): Our search range is [1.e-01, 1.e-02, 1.e-03, 1.e-04, 1.e-05]
+- weight scale (ws): We initialize the weight with a normal distribution. The normal distribution has mean 0 and variance **ws**. Our search range is [1, 0.1, 0.01, 0.001]
+
+#### Network Architecture
+- layers: [6, 16, 16, 8, 4, 2]
+- learning rate: 0.005
+- learning rate decay rate: 0.99
+- regularization weight: 1e-8
+- weight scale: 0.05
+- batch size: 40
+In general, deep structure have better ability than shllow structure. However, since my computational power is limited, my cpu can afford no more than 6 layers. Therefore, we construct a network with 6 layers. 
+We show the loss curve and error rate here. Other hyperparameters are find with grid search.
+
 #### Initialization
 We initialize the weight with a normal distribution N(0, n). Also, we initialize the bias with 0.
 
 ### Problem 2
-![](/result/prob2.png)
+![](/result/prob2_op.png)
 We construct a DNN with the number of neuron [6, 3, 3, 2]. To find the hypermeters, we apply grid search to get the best hyperparameters.
 
 
@@ -28,6 +47,7 @@ At 00:05 on 15 April 1912, Captain Smith ordered the ship's lifeboats uncovered 
 
 ### Problem 5
 ![](/result/prob5_compared.png)
+Since Pclass is a categorial feature, we encode the Pclass to one hot code. According to the figures, one hot encoding is helpful for training. Performance with one hot encoding is also higher than that without onehot encoding. However, we can also find that the training curve of two methods are closed. One possible reason is that Pclass is ordinal, so encoding it with 1, 2, 3  still makes sense.
 
 ### Problem 6
 ![](/result/prob6_Fare.png)

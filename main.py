@@ -17,7 +17,7 @@ except:
 
 np.random.seed(0)
 # plt.style.use('ggplot')
-OPTIMIZER = 'sgd'
+OPTIMIZER = 'adam'
 NUM_EPOCH = 400
 
 
@@ -94,15 +94,15 @@ def grid_search(data, **kwargs):
 
 def plot(solver, filename, a=1, m='-o'):
     plt.subplot(3, 1, 1)
-    plt.title('Training loss')
+    plt.title('Training Loss')
     plt.xlabel('Iteration')
 
     plt.subplot(3, 1, 2)
-    plt.title('Training accuracy')
+    plt.title('Training Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 3)
-    plt.title('Validation accuracy')
+    plt.title('Testing Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 1)
@@ -125,15 +125,15 @@ def plot(solver, filename, a=1, m='-o'):
 
 def plot_smooth(solver, filename, a=1, m='-o'):
     plt.subplot(3, 1, 1)
-    plt.title('Training loss')
+    plt.title('Training Loss')
     plt.xlabel('Iteration')
 
     plt.subplot(3, 1, 2)
-    plt.title('Training accuracy')
+    plt.title('Training Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 3)
-    plt.title('Validation accuracy')
+    plt.title('Testing Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 1)
@@ -168,15 +168,15 @@ def plot_smooth(solver, filename, a=1, m='-o'):
 
 def plot_solvers(solvers, filename, alpha=1, m='-o'):
     plt.subplot(3, 1, 1)
-    plt.title('Training loss')
+    plt.title('Training Loss')
     plt.xlabel('Iteration')
 
     plt.subplot(3, 1, 2)
-    plt.title('Training accuracy')
+    plt.title('Training Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 3)
-    plt.title('Validation accuracy')
+    plt.title('Testing Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 1)
@@ -205,15 +205,15 @@ def plot_solvers(solvers, filename, alpha=1, m='-o'):
 
 def plot_solvers_smooth(solvers, filename, alpha=1, m='-o'):
     plt.subplot(3, 1, 1)
-    plt.title('Training loss')
+    plt.title('Training Loss')
     plt.xlabel('Iteration')
 
     plt.subplot(3, 1, 2)
-    plt.title('Training accuracy')
+    plt.title('Training Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 3)
-    plt.title('Validation accuracy')
+    plt.title('Testing Accuracy')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 1)
@@ -253,6 +253,8 @@ def plot_solvers_smooth(solvers, filename, alpha=1, m='-o'):
 
     return
 
+def smooth(value):
+    return sp.signal.savgol_filter(value, 5, 2)
 
 def problem1():
     data_df = pd.read_csv('titanic.csv')
@@ -260,6 +262,16 @@ def problem1():
     data = data_df.values
     data[:800] = data[:800][mask]
     train_acc, val_acc = [], []
+
+    # grid_search(
+    #     data,
+    #     weight_scale=list(np.logspace(0, -3, 4)),
+    #     reg=list(np.logspace(-1, -5, 5)),
+    #     lr=list(np.logspace(-1, -4, 4)),
+    #     lr_dec=list(np.linspace(0.9, 1, 5)),
+    #     batch_size=list(np.linspace(5, 100, 5, dtype=int))
+    # )
+
     for i in range(1, 17, 1):
         x_train, y_train = data[:int(i * 50), 1:], data[:int(i * 50), 0]
         x_test, y_test = data[800:, 1:], data[800:, 0]
@@ -270,21 +282,21 @@ def problem1():
             'y_val': y_test.astype(int),
         }
 
-        model = FullyConnectedNet([3, 3, 3, 3],
+        model = FullyConnectedNet([16, 16, 8, 4],
                                   input_dim=6,
                                   num_classes=2,
                                   weight_scale=5e-2,
-                                  reg=1e-5)
+                                  reg=1e-8)
         solver = Solver(
             model,
             data_dict,
-            update_rule='sgd',
+            update_rule='adam',
             optim_config={
-                'learning_rate': 0.01,
+                'learning_rate': 0.005,
             },
-            lr_decay=0.999,
-            num_epochs=2000,
-            batch_size=10,
+            lr_decay=0.99,
+            num_epochs=600,
+            batch_size=40,
             print_every=100,
             verbose=False)
         solver.train()
@@ -295,7 +307,7 @@ def problem1():
     plt.gcf().set_size_inches(8, 4.5)
     plt.tight_layout()
     plt.plot(index, train_acc, '-o', label='training accuracy')
-    plt.plot(index, val_acc, '-o', label='validation accuracy')
+    plt.plot(index, val_acc, '-o', label='testing accuracy')
     plt.title('Learning Curve')
     plt.xlabel('Size of Dataset')
     plt.ylabel('Accuracy')
@@ -316,12 +328,12 @@ def problem1():
     plt.gcf().set_size_inches(8, 4.5)
     plt.plot(
         range(len(solver.train_acc_history)),
-        1 - np.array(solver.train_acc_history),
+        1 - smooth(np.array(solver.train_acc_history)),
         '-',
         label='Training')
     plt.plot(
         range(len(solver.val_acc_history)),
-        1 - np.array(solver.val_acc_history),
+        1 - smooth(np.array(solver.val_acc_history)),
         '-',
         label='Testing')
     plt.title('Error Rate Curve')
@@ -359,18 +371,18 @@ def problem2():
     model_2 = FullyConnectedNet([3, 3],
                                 input_dim=6,
                                 num_classes=2,
-                                weight_scale=5e-2,
-                                reg=1e-5)
+                                weight_scale=0.03,
+                                reg=0)
     solver_2 = Solver(
         model_2,
         data,
-        update_rule=OPTIMIZER,
+        update_rule='sgd',
         optim_config={
-            'learning_rate': 0.1,
+            'learning_rate': 0.01,
         },
-        lr_decay=0.98,
+        lr_decay=0.99999,
         num_epochs=600,
-        batch_size=40,
+        batch_size=5,
         print_every=100,
         verbose=False,
         name='SGD')
@@ -379,18 +391,18 @@ def problem2():
     model_adam = FullyConnectedNet([3, 3],
                                    input_dim=6,
                                    num_classes=2,
-                                   weight_scale=5e-2,
-                                   reg=1e-5)
+                                   weight_scale=1e-1,
+                                   reg=1e-4)
     solver_adma = Solver(
         model_adam,
         data,
         update_rule='adam',
         optim_config={
-            'learning_rate': 1e-3,
+            'learning_rate': 0.0138,
         },
-        lr_decay=0.98,
+        lr_decay=1,
         num_epochs=600,
-        batch_size=40,
+        batch_size=100,
         print_every=100,
         verbose=False,
         name='Adam')
@@ -415,7 +427,7 @@ def problem2():
         verbose=False,
         name='rmsprop')
     solver_rmsp.train()
-    # plot_smooth(solver_2, 'prob2.png', a=0.8, m='-')
+
     plot(solver_2, 'prob2.png', a=0.8, m='-')
     plot_solvers_smooth([solver_2, solver_adma, solver_rmsp], 'prob2_op.png',
                         0.7, '-')
@@ -446,7 +458,7 @@ def problem3():
         data,
         update_rule=OPTIMIZER,
         optim_config={
-            'learning_rate': 0.1,
+            'learning_rate': 0.001,
         },
         lr_decay=0.98,
         num_epochs=NUM_EPOCH,
@@ -467,8 +479,7 @@ def problem3():
     age_mean, age_std = np.mean(x_train[:, 2]), np.std(x_train[:, 2])
     x_train[:, -1] = (x_train[:, -1] - fare_mean) / fare_std
     x_test[:, -1] = (x_test[:, -1] - fare_mean) / fare_std
-    x_train[:, 2] = (x_train[:, 2] - age_mean) / age_std
-    x_test[:, 2] = (x_test[:, 2] - age_mean) / age_std
+
 
     data = {
         'X_train': x_train,
@@ -477,27 +488,57 @@ def problem3():
         'y_val': y_test.astype(int),
     }
 
-    model_3_nor = FullyConnectedNet([3, 3],
+    model_3_st = FullyConnectedNet([3, 3],
                                     input_dim=6,
                                     num_classes=2,
                                     weight_scale=5e-1,
                                     reg=1e-4)
-    solver_3_nor = Solver(
-        model_3_nor,
+    solver_3_st = Solver(
+        model_3_st,
         data,
         update_rule=OPTIMIZER,
         optim_config={
-            'learning_rate': 0.01,
+            'learning_rate': 0.001,
         },
         lr_decay=0.98,
         num_epochs=NUM_EPOCH,
         batch_size=40,
         print_every=100,
-        name='standardized',
+        name='standardize Fare',
         verbose=False)
-    solver_3_nor.train()
-    plot(solver_3_nor, 'prob3_nor.png')
-    plot_solvers_smooth([solver_3, solver_3_nor],
+    solver_3_st.train()
+    plot(solver_3_st, 'prob3_nor.png')
+
+
+    model_3_all = FullyConnectedNet([3, 3],
+                                    input_dim=6,
+                                    num_classes=2,
+                                    weight_scale=5e-1,
+                                    reg=1e-4)
+    x_train[:, 2] = (x_train[:, 2] - age_mean) / age_std
+    x_test[:, 2] = (x_test[:, 2] - age_mean) / age_std
+    data = {
+        'X_train': x_train,
+        'y_train': y_train.astype(int),
+        'X_val': x_test,
+        'y_val': y_test.astype(int),
+    }
+    solver_3_all = Solver(
+        model_3_all,
+        data,
+        update_rule=OPTIMIZER,
+        optim_config={
+            'learning_rate': 0.001,
+        },
+        lr_decay=0.98,
+        num_epochs=NUM_EPOCH,
+        batch_size=40,
+        print_every=100,
+        name='standardize All',
+        verbose=False)
+    solver_3_all.train()
+    plot(solver_3_st, 'prob3_nor.png')
+    plot_solvers_smooth([solver_3, solver_3_st, solver_3_all],
                         'prob3_compared.png',
                         alpha=0.8,
                         m='-')
@@ -530,11 +571,11 @@ def problem4():
             data,
             update_rule=OPTIMIZER,
             optim_config={
-                'learning_rate': 0.1,
+                'learning_rate': 0.0138,
             },
             lr_decay=0.98,
-            num_epochs=400,
-            batch_size=20,
+            num_epochs=600,
+            batch_size=100,
             print_every=100,
             verbose=False,
             name='without ' + i)
@@ -563,11 +604,11 @@ def problem4():
         data,
         update_rule=OPTIMIZER,
         optim_config={
-            'learning_rate': 0.1,
+            'learning_rate': 0.001,
         },
         lr_decay=0.98,
-        num_epochs=400,
-        batch_size=20,
+        num_epochs=600,
+        batch_size=100,
         print_every=100,
         name='original',
         verbose=False)
@@ -596,18 +637,18 @@ def problem5():
     model_5 = FullyConnectedNet([3, 3],
                                 input_dim=6,
                                 num_classes=2,
-                                weight_scale=5e-2,
+                                weight_scale=1e-1,
                                 reg=1e-4)
     solver_5 = Solver(
         model_5,
         data,
         update_rule=OPTIMIZER,
         optim_config={
-            'learning_rate': 0.01,
+            'learning_rate': 0.0138,
         },
         lr_decay=0.999,
         num_epochs=NUM_EPOCH,
-        batch_size=8,
+        batch_size=100,
         print_every=100,
         name='original',
         verbose=False)
@@ -634,24 +675,24 @@ def problem5():
     model_5_cat = FullyConnectedNet([3, 3],
                                     input_dim=8,
                                     num_classes=2,
-                                    weight_scale=5e-2,
+                                    weight_scale=1e-1,
                                     reg=1e-4)
     solver_5_cat = Solver(
         model_5_cat,
         data,
         update_rule=OPTIMIZER,
         optim_config={
-            'learning_rate': 0.01,
+            'learning_rate': 0.0138,
         },
         lr_decay=0.999,
         num_epochs=NUM_EPOCH,
-        batch_size=8,
+        batch_size=100,
         print_every=100,
         name='categorical',
         verbose=False)
     solver_5_cat.train()
     plot(solver_5_cat, 'prob5_cat.png')
-    plot_solvers([solver_5, solver_5_cat], 'prob5_compared.png', m='-')
+    plot_solvers_smooth([solver_5, solver_5_cat], 'prob5_compared.png', m='-')
     return
 
 
@@ -765,8 +806,8 @@ def his(FEAT, feat_analysis, nbin, upper_bound=1e5):
 
 if __name__ == '__main__':
     # problem1()
-    problem2()
-    # problem3()
+    # problem2()
+    problem3()
     # problem4()
     # problem5()
     # problem6()
