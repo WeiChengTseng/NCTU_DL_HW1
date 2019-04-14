@@ -5,22 +5,10 @@ import numpy as np
 from layers import *
 
 class FullyConnectedNet(object):
-    """
-    A fully-connected neural network with an arbitrary number of hidden layers,
-    ReLU nonlinearities, and a softmax loss function. This will also implement
-    dropout and batch normalization as options. For a network with L layers,
-    the architecture will be
-    {affine - [batch norm] - relu - [dropout]} x (L - 1) - affine - softmax
-    where batch normalization and dropout are optional, and the {...} block is
-    repeated L - 1 times.
-    Similar to the TwoLayerNet above, learnable parameters are stored in the
-    self.params dictionary and will be learned using the Solver class.
-    """
-
     def __init__(self,
                  hidden_dims,
-                 input_dim=3 * 32 * 32,
-                 num_classes=10,
+                 input_dim=6,
+                 num_classes=2,
                  dropout=0,
                  use_batchnorm=False,
                  reg=0.0,
@@ -80,20 +68,14 @@ class FullyConnectedNet(object):
 
         ############################################################################
 
-        # When using dropout we need to pass a dropout_param dictionary to each
-        # dropout layer so that the layer knows the dropout probability and the mode
-        # (train / test). You can pass the same dropout_param to each dropout layer.
+        # dropout
         self.dropout_param = {}
         if self.use_dropout:
             self.dropout_param = {'mode': 'train', 'p': dropout}
             if seed is not None:
                 self.dropout_param['seed'] = seed
 
-        # With batch normalization we need to keep track of running means and
-        # variances, so we need to pass a special bn_param object to each batch
-        # normalization layer. You should pass self.bn_params[0] to the forward pass
-        # of the first batch normalization layer, self.bn_params[1] to the forward
-        # pass of the second batch normalization layer, etc.
+        # batch normalize
         self.bn_params = []
         if self.use_batchnorm:
             self.bn_params = [{
