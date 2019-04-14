@@ -77,7 +77,7 @@ def problem1():
     plt.xlabel('Size of Dataset')
     plt.ylabel('Accuracy')
     plt.legend()
-    plt.savefig(os.path.join('./result/', 'prob1.png'), dpi=250)
+    plt.savefig(os.path.join('./result_/', 'prob1.png'), dpi=250)
     plt.close()
 
     plt.gcf().set_size_inches(8, 4.5)
@@ -87,7 +87,7 @@ def problem1():
     plt.title('Loss Curve')
     plt.xlabel('Iteration')
     plt.ylabel('Loss')
-    plt.savefig(os.path.join('./result/', 'prob1_loss.png'), dpi=250)
+    plt.savefig(os.path.join('./result_/', 'prob1_loss.png'), dpi=250)
     plt.close()
 
     plt.gcf().set_size_inches(8, 4.5)
@@ -105,7 +105,7 @@ def problem1():
     plt.xlabel('Iteration')
     plt.ylabel('Error Rate')
     plt.legend()
-    plt.savefig(os.path.join('./result/', 'prob1_error.png'), dpi=250)
+    plt.savefig(os.path.join('./result_/', 'prob1_error.png'), dpi=250)
     plt.close()
 
     return
@@ -225,7 +225,7 @@ def problem3():
         optim_config={
             'learning_rate': 0.0138,
         },
-        lr_decay=0.98,
+        lr_decay=0.99,
         num_epochs=NUM_EPOCH,
         batch_size=100,
         print_every=100,
@@ -255,7 +255,7 @@ def problem3():
     model_3_st = FullyConnectedNet([3, 3],
                                    input_dim=6,
                                    num_classes=2,
-                                   weight_scale=1e-1,
+                                   weight_scale=2e-1,
                                    reg=1e-4)
     solver_3_st = Solver(
         model_3_st,
@@ -264,7 +264,7 @@ def problem3():
         optim_config={
             'learning_rate': 0.0138,
         },
-        lr_decay=0.98,
+        lr_decay=0.99,
         num_epochs=NUM_EPOCH,
         batch_size=100,
         print_every=100,
@@ -273,11 +273,13 @@ def problem3():
     solver_3_st.train()
     plot(solver_3_st, 'prob3_nor.png')
 
+    # -------------------------------------------------------------------------
+
     model_3_all = FullyConnectedNet([3, 3],
                                     input_dim=6,
                                     num_classes=2,
-                                    weight_scale=1e-1,
-                                    reg=1e-4)
+                                    weight_scale=2e-1,
+                                    reg=1e-5)
     x_train[:, 2] = (x_train[:, 2] - age_mean) / age_std
     x_test[:, 2] = (x_test[:, 2] - age_mean) / age_std
     data = {
@@ -293,11 +295,11 @@ def problem3():
         optim_config={
             'learning_rate': 0.0138,
         },
-        lr_decay=0.98,
+        lr_decay=0.99,
         num_epochs=NUM_EPOCH,
         batch_size=100,
         print_every=100,
-        name='standardize All',
+        name='standardize Fare and Age',
         verbose=False)
     solver_3_all.train()
     plot(solver_3_st, 'prob3_nor.png')
@@ -328,17 +330,17 @@ def problem4():
                                     input_dim=5,
                                     num_classes=2,
                                     weight_scale=5e-2,
-                                    reg=1e-4)
+                                    reg=1e-5)
         solver_4 = Solver(
             model_4,
             data,
-            update_rule=OPTIMIZER,
+            update_rule='sgd',
             optim_config={
-                'learning_rate': 0.0138,
+                'learning_rate': 0.1,
             },
-            lr_decay=0.98,
+            lr_decay=0.99,
             num_epochs=600,
-            batch_size=100,
+            batch_size=40,
             print_every=100,
             verbose=False,
             name='without ' + i)
@@ -361,17 +363,17 @@ def problem4():
                                   input_dim=6,
                                   num_classes=2,
                                   weight_scale=5e-2,
-                                  reg=1e-4)
+                                  reg=1e-5)
     solver_ori = Solver(
         model_ori,
         data,
-        update_rule=OPTIMIZER,
+        update_rule='sgd',
         optim_config={
-            'learning_rate': 0.0138,
+            'learning_rate': 0.1,
         },
-        lr_decay=0.98,
+        lr_decay=0.99,
         num_epochs=600,
-        batch_size=100,
+        batch_size=40,
         print_every=100,
         name='original',
         verbose=False)
@@ -494,6 +496,9 @@ def problem6():
     his('Fare', feat_analysis, 10, 100)
     his('Sex', feat_analysis, 10)
     his('Pclass', feat_analysis, 10)
+    his('Parch', feat_analysis, 10)
+    his('SibSp', feat_analysis, 20)
+
     # FEAT = 'Age'
     # fares = sorted(feat_analysis[FEAT].keys())
     # his = []
@@ -507,22 +512,22 @@ def problem6():
     # # plt.hist(fares, [feat_analysis[FEAT][i][0] for i in fares])
     # plt.show()
 
-    return
+    # return
     model_6 = FullyConnectedNet([3, 3],
                                 input_dim=6,
                                 num_classes=2,
-                                weight_scale=5e-2,
+                                weight_scale=1e-1,
                                 reg=1e-5)
     solver_6 = Solver(
         model_6,
         data,
         update_rule=OPTIMIZER,
         optim_config={
-            'learning_rate': 0.1,
+            'learning_rate': 0.0138,
         },
         lr_decay=0.98,
         num_epochs=NUM_EPOCH,
-        batch_size=40,
+        batch_size=100,
         print_every=100,
         verbose=False)
     solver_6.train()
@@ -562,16 +567,16 @@ def his(FEAT, feat_analysis, nbin, upper_bound=1e5):
     plt.xlabel(FEAT)
     plt.ylabel('Normalized Number of Pensangers')
     plt.legend()
-    plt.savefig('./result/prob6_{}.png'.format(FEAT), dpi=250)
+    plt.savefig('./result_/prob6_{}.png'.format(FEAT), dpi=250)
     plt.close()
     return
 
 
 if __name__ == '__main__':
-    # problem1()
-    # problem2()
+    problem1()
+    problem2()
     problem3()
-    # problem4()
-    # problem5()
-    # problem6()
+    problem4()
+    problem5()
+    problem6()
     pass

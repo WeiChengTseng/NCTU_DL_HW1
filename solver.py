@@ -94,7 +94,7 @@ class Solver(object):
 		- verbose: Boolean; if set to false then no output will be printed
 			during training.
 		- num_train_samples: Number of training samples used to check training
-			accuracy; default is 1000; set to None to use entire training set.
+			accuracy; default is 800; set to None to use entire training set.
 		- num_val_samples: Number of validation samples to use to check val
 			accuracy; default is None, which uses the entire validation set.
 		- checkpoint_name: If not None, then save model checkpoints here every
@@ -112,7 +112,7 @@ class Solver(object):
 		self.lr_decay = kwargs.pop('lr_decay', 1.0)
 		self.batch_size = kwargs.pop('batch_size', 100)
 		self.num_epochs = kwargs.pop('num_epochs', 10)
-		self.num_train_samples = kwargs.pop('num_train_samples', 1000)
+		self.num_train_samples = kwargs.pop('num_train_samples', 800)
 		self.num_val_samples = kwargs.pop('num_val_samples', None)
 
 		self.checkpoint_name = kwargs.pop('checkpoint_name', None)
@@ -154,8 +154,7 @@ class Solver(object):
 
 	def _step(self):
 		"""
-		Make a single gradient update. This is called by train() and should not
-		be called manually.
+		Make a single gradient update.
 		"""
 		# Make a minibatch of training data
 		num_train = self.X_train.shape[0]

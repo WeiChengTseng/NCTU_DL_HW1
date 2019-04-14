@@ -16,11 +16,6 @@ Returns:
     - next_w: The next point after the update.
     - config: The config dictionary to be passed to the next iteration of the
       update rule.
-NOTE: For most update rules, the default learning rate will probably not
-perform well; however the default values of the other hyperparameters should
-work well for a variety of different problems.
-For efficiency, update rules may perform in-place updates, mutating w and
-setting next_w equal to w.
 """
 
 

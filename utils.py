@@ -98,26 +98,26 @@ def plot(solver, filename, a=1, m='-o'):
     plt.xlabel('Iteration')
 
     plt.subplot(3, 1, 2)
-    plt.title('Training Accuracy')
+    plt.title('Training Error Rate')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 3)
-    plt.title('Testing Accuracy')
+    plt.title('Testing Error Rate')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 1)
     plt.plot(solver.loss_history, 'o', markersize=4, alpha=a)
     plt.subplot(3, 1, 2)
-    plt.plot(solver.train_acc_history, m, markersize=4, alpha=a)
+    plt.plot(1-np.array(solver.train_acc_history), m, markersize=4, alpha=a)
     plt.subplot(3, 1, 3)
-    plt.plot(solver.val_acc_history, m, markersize=4, alpha=a)
+    plt.plot(1-np.array(solver.val_acc_history), m, markersize=4, alpha=a)
 
     for i in [1, 2, 3]:
         plt.subplot(3, 1, i)
         # plt.legend(loc='upper center', ncol=4)
     plt.gcf().set_size_inches(9, 12)
     plt.tight_layout()
-    plt.savefig(os.path.join('./result/', filename), dpi=250)
+    plt.savefig(os.path.join('./result_/', filename), dpi=250)
     plt.close()
 
     return
@@ -129,11 +129,11 @@ def plot_smooth(solver, filename, a=1, m='-o'):
     plt.xlabel('Iteration')
 
     plt.subplot(3, 1, 2)
-    plt.title('Training Accuracy')
+    plt.title('Training Error Rate')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 3)
-    plt.title('Testing Accuracy')
+    plt.title('Testing Error Rate')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 1)
@@ -144,13 +144,13 @@ def plot_smooth(solver, filename, a=1, m='-o'):
         alpha=a)
     plt.subplot(3, 1, 2)
     plt.plot(
-        sp.signal.savgol_filter(solver.train_acc_history, 9, 2),
+        sp.signal.savgol_filter(1-np.array(solver.train_acc_history), 9, 2),
         m,
         markersize=4,
         alpha=a)
     plt.subplot(3, 1, 3)
     plt.plot(
-        sp.signal.savgol_filter(solver.val_acc_history, 9, 2),
+        sp.signal.savgol_filter(1-np.array(solver.val_acc_history), 9, 2),
         m,
         markersize=4,
         alpha=a)
@@ -160,7 +160,7 @@ def plot_smooth(solver, filename, a=1, m='-o'):
         # plt.legend(loc='upper center', ncol=4)
     plt.gcf().set_size_inches(9, 12)
     plt.tight_layout()
-    plt.savefig(os.path.join('./result/', filename), dpi=250)
+    plt.savefig(os.path.join('./result_/', filename), dpi=250)
     plt.close()
 
     return
@@ -172,11 +172,11 @@ def plot_solvers(solvers, filename, alpha=1, m='-o'):
     plt.xlabel('Iteration')
 
     plt.subplot(3, 1, 2)
-    plt.title('Training Accuracy')
+    plt.title('Training Error Rate')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 3)
-    plt.title('Testing Accuracy')
+    plt.title('Testing Error Rate')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 1)
@@ -186,18 +186,18 @@ def plot_solvers(solvers, filename, alpha=1, m='-o'):
     plt.subplot(3, 1, 2)
     for s in solvers:
         plt.plot(
-            s.train_acc_history, m, markersize=4, label=s.name, alpha=alpha)
+            1-np.array(s.train_acc_history), m, markersize=4, label=s.name, alpha=alpha)
 
     plt.subplot(3, 1, 3)
     for s in solvers:
-        plt.plot(s.val_acc_history, m, markersize=4, label=s.name, alpha=alpha)
+        plt.plot(1-np.array(s.val_acc_history), m, markersize=4, label=s.name, alpha=alpha)
 
     for i in [1, 2, 3]:
         plt.subplot(3, 1, i)
         plt.legend(ncol=4)
     plt.gcf().set_size_inches(9, 12)
     plt.tight_layout()
-    plt.savefig(os.path.join('./result/', filename), dpi=250)
+    plt.savefig(os.path.join('./result_/', filename), dpi=250)
     plt.close()
 
     return
@@ -209,11 +209,11 @@ def plot_solvers_smooth(solvers, filename, alpha=1, m='-o'):
     plt.xlabel('Iteration')
 
     plt.subplot(3, 1, 2)
-    plt.title('Training Accuracy')
+    plt.title('Training Error Rate')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 3)
-    plt.title('Testing Accuracy')
+    plt.title('Testing Error Rate')
     plt.xlabel('Epoch')
 
     plt.subplot(3, 1, 1)
@@ -228,7 +228,7 @@ def plot_solvers_smooth(solvers, filename, alpha=1, m='-o'):
     plt.subplot(3, 1, 2)
     for s in solvers:
         plt.plot(
-            sp.signal.savgol_filter(s.train_acc_history, 15, 2),
+            sp.signal.savgol_filter(1-np.array(s.train_acc_history), 15, 2),
             m,
             markersize=4,
             label=s.name,
@@ -237,7 +237,7 @@ def plot_solvers_smooth(solvers, filename, alpha=1, m='-o'):
     plt.subplot(3, 1, 3)
     for s in solvers:
         plt.plot(
-            sp.signal.savgol_filter(s.val_acc_history, 15, 2),
+            sp.signal.savgol_filter(1-np.array(s.val_acc_history), 15, 2),
             m,
             markersize=4,
             label=s.name,
@@ -248,7 +248,7 @@ def plot_solvers_smooth(solvers, filename, alpha=1, m='-o'):
         plt.legend(ncol=4)
     plt.gcf().set_size_inches(9, 12)
     plt.tight_layout()
-    plt.savefig(os.path.join('./result/', filename), dpi=250)
+    plt.savefig(os.path.join('./result_/', filename), dpi=250)
     plt.close()
 
     return
