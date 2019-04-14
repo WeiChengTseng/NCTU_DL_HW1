@@ -6,16 +6,16 @@ gradient of the loss with respect to those weights and produces the next set of
 weights. Each update rule has the same interface:
 def update(w, dw, config=None):
 Inputs:
-  - w: A numpy array giving the current weights.
-  - dw: A numpy array of the same shape as w giving the gradient of the
-    loss with respect to w.
-  - config: A dictionary containing hyperparameter values such as learning
-    rate, momentum, etc. If the update rule requires caching values over many
-    iterations, then config will also hold these cached values.
+    - w: A numpy array giving the current weights.
+    - dw: A numpy array of the same shape as w giving the gradient of the
+      loss with respect to w.
+    - config: A dictionary containing hyperparameter values such as learning
+      rate, momentum, etc. If the update rule requires caching values over many
+      iterations, then config will also hold these cached values.
 Returns:
-  - next_w: The next point after the update.
-  - config: The config dictionary to be passed to the next iteration of the
-    update rule.
+    - next_w: The next point after the update.
+    - config: The config dictionary to be passed to the next iteration of the
+      update rule.
 NOTE: For most update rules, the default learning rate will probably not
 perform well; however the default values of the other hyperparameters should
 work well for a variety of different problems.
@@ -53,16 +53,13 @@ def sgd_momentum(w, dw, config=None):
     v = config.get('velocity', np.zeros_like(w))
 
     next_w = None
+
     ###########################################################################
-    # TODO: Implement the momentum update formula. Store the updated value in #
-    # the next_w variable. You should also use and update the velocity v.     #
-    ###########################################################################
+
     mu = 0.9
     v = mu * v - config['learning_rate'] * dw
     next_w = v + w
-    pass
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
+
     ###########################################################################
     config['velocity'] = v
 
@@ -87,18 +84,14 @@ def rmsprop(x, dx, config=None):
     config.setdefault('cache', np.zeros_like(x))
 
     next_x = None
+
     ###########################################################################
-    # TODO: Implement the RMSprop update formula, storing the next value of x #
-    # in the next_x variable. Don't forget to update cache value stored in    #
-    # config['cache'].                                                        #
-    ###########################################################################
+ 
     config['cache'] = config['decay_rate'] * config['cache'] + (
         1 - config['decay_rate']) * dx**2
     next_x = x - config['learning_rate'] * dx / (
         np.sqrt(config['cache']) + config['epsilon'])
-    pass
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
+
     ###########################################################################
 
     return next_x, config
@@ -127,11 +120,9 @@ def adam(x, dx, config=None):
     config.setdefault('t', 1)
 
     next_x = None
+
     ###########################################################################
-    # TODO: Implement the Adam update formula, storing the next value of x in #
-    # the next_x variable. Don't forget to update the m, v, and t variables   #
-    # stored in config.                                                       #
-    ###########################################################################
+
     config['t'] += 1
     config['m'] = config['m'] * config['beta1'] + (1 - config['beta1']) * dx
     config['v'] = config['v'] * config['beta2'] + (1 - config['beta2']) * dx**2
@@ -139,9 +130,7 @@ def adam(x, dx, config=None):
     vb = config['v'] / (1 - config['beta2']**config['t'])
     next_x = x - config['learning_rate'] * mb / (
         np.sqrt(vb) + config['epsilon'])
-    pass
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
+
     ###########################################################################
 
     return next_x, config

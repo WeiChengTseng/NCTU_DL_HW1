@@ -54,17 +54,7 @@ class FullyConnectedNet(object):
         self.params = {}
 
         ############################################################################
-        # TODO: Initialize the parameters of the network, storing all values in    #
-        # the self.params dictionary. Store weights and biases for the first layer #
-        # in W1 and b1; for the second layer use W2 and b2, etc. Weights should be #
-        # initialized from a normal distribution with standard deviation equal to  #
-        # weight_scale and biases should be initialized to zero.                   #
-        #                                                                          #
-        # When using batch normalization, store scale and shift parameters for the #
-        # first layer in gamma1 and beta1; for the second layer use gamma2 and     #
-        # beta2, etc. Scale parameters should be initialized to one and shift      #
-        # parameters should be initialized to zero.                                #
-        ############################################################################
+
         L = self.num_layers
         self.params_bn = {}
 
@@ -87,9 +77,7 @@ class FullyConnectedNet(object):
             for i in range(2, L):
                 self.params['gamma' + str(i)] = np.ones(hidden_dims[i - 1])
                 self.params['beta' + str(i)] = np.zeros(hidden_dims[i - 1])
-        pass
-        ############################################################################
-        #                             END OF YOUR CODE                             #
+
         ############################################################################
 
         # When using dropout we need to pass a dropout_param dictionary to each
@@ -133,18 +121,9 @@ class FullyConnectedNet(object):
                 bn_param['mode'] = mode
 
         scores = None
+
         ############################################################################
-        # TODO: Implement the forward pass for the fully-connected net, computing  #
-        # the class scores for X and storing them in the scores variable.          #
-        #                                                                          #
-        # When using dropout, you'll need to pass self.dropout_param to each       #
-        # dropout forward pass.                                                    #
-        #                                                                          #
-        # When using batch normalization, you'll need to pass self.bn_params[0] to #
-        # the forward pass for the first batch normalization layer, pass           #
-        # self.bn_params[1] to the forward pass for the second batch normalization #
-        # layer, etc.                                                              #
-        ############################################################################
+
         cache, cache_relu, cache_nor, cache_dropout = {}, {}, {}, {}
         L = self.num_layers
 
@@ -172,29 +151,17 @@ class FullyConnectedNet(object):
         scores, cache[L] = affine_forward(
             next_input, self.params['W' + str(L)], self.params['b' + str(L)])
 
-        pass
         ############################################################################
-        #                             END OF YOUR CODE                             #
-        ############################################################################
+
 
         # If test mode return early
         if mode == 'test':
             return scores
 
         loss, grads = 0.0, {}
+
         ############################################################################
-        # TODO: Implement the backward pass for the fully-connected net. Store the #
-        # loss in the loss variable and gradients in the grads dictionary. Compute #
-        # data loss using softmax, and make sure that grads[k] holds the gradients #
-        # for self.params[k]. Don't forget to add L2 regularization!               #
-        #                                                                          #
-        # When using batch normalization, you don't need to regularize the scale   #
-        # and shift parameters.                                                    #
-        #                                                                          #
-        # NOTE: To ensure that your implementation matches ours and you pass the   #
-        # automated tests, make sure that your L2 regularization includes a factor #
-        # of 0.5 to simplify the expression for the gradient.                      #
-        ############################################################################
+
         loss, dscores = softmax_loss(scores, y)
         for i in range(1, L + 1):
             loss += 0.5 * self.reg * np.sum(self.params['W' + str(i)]**2)
@@ -212,10 +179,7 @@ class FullyConnectedNet(object):
             dh, grads['W' + str(i)], grads['b' + str(i)] = affine_backward(
                 dh, cache[i])
             grads['W' + str(i)] += self.params['W' + str(i)] * self.reg
-        pass
 
-        ############################################################################
-        #                             END OF YOUR CODE                             #
         ############################################################################
 
         return loss, grads
